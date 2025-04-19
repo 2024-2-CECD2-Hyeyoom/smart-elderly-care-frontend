@@ -1,38 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/my_login_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color.fromARGB(255, 144, 221, 252),
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 144, 221, 252),
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 100),
+        padding: const EdgeInsets.symmetric(vertical: 100),
         child: Center(
           child: Column(
             children: [
-              Text(
+              const Text(
                 '사용자 유형을 선택해주세요',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               ChooseUserType(
                 text: '나의 생활 패턴 보기',
                 icon: Icons.bar_chart_outlined,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MyLoginScreen(loginType: LoginType.user),
+                    ),
+                  );
+                },
               ),
-              SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
+
+              // 🔹 관리자 로그인
               ChooseUserType(
                 text: '모니터링 서비스 이용하기',
                 icon: Icons.admin_panel_settings_rounded,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          MyLoginScreen(loginType: LoginType.admin),
+                    ),
+                  );
+                },
               ),
-              SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
             ],
           ),
         ),
@@ -45,19 +62,19 @@ class StartScreen extends StatelessWidget {
 class ChooseUserType extends StatelessWidget {
   final String text;
   final IconData icon;
+  final VoidCallback onTap;
 
   const ChooseUserType({
     super.key,
     required this.text,
     required this.icon,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print('버튼 누름');
-      },
+      onTap: onTap,
       child: Container(
         height: 200,
         width: 300,
