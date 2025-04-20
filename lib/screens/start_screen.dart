@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/my_login_screen.dart';
+import 'package:frontend/screens/login_screens/login_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -28,7 +28,7 @@ class StartScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          MyLoginScreen(loginType: LoginType.user),
+                          LoginScreen(loginType: LoginType.user),
                     ),
                   );
                 },
@@ -44,7 +44,7 @@ class StartScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          MyLoginScreen(loginType: LoginType.admin),
+                          LoginScreen(loginType: LoginType.admin),
                     ),
                   );
                 },
