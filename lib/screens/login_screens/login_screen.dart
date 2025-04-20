@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login_screens/personal_signUp_screen.dart';
 
 enum LoginType { user, admin }
 
-class MyLoginScreen extends StatelessWidget {
+class LoginScreen extends StatelessWidget {
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final ValueNotifier<bool> autoLogin = ValueNotifier(false); // 자동 로그인 상태 관리
 
   final LoginType loginType;
 
-  MyLoginScreen({super.key, required this.loginType});
+  LoginScreen({super.key, required this.loginType});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +95,24 @@ class MyLoginScreen extends StatelessWidget {
                       ),
                       const Text('|'),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (loginType == LoginType.user) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PersonalSignupScreen()),
+                            );
+                          } else {
+                            // 모니터링 케어 서비스 회원가입 페이지 아직
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PersonalSignupScreen()),
+                            );
+                          }
+                        },
                         child: const Text(
                           '회원가입',
                           style: TextStyle(color: Colors.grey),
