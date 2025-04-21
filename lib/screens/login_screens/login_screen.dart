@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/login_screens/personal_signUp_screen.dart';
+import 'package:frontend/screens/login_screens/signUp_screen.dart';
 
 enum LoginType { user, admin }
 
@@ -100,16 +100,18 @@ class LoginScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PersonalSignupScreen()),
+                                builder: (context) => const SignupScreen(
+                                    loginType: LoginType.user),
+                              ),
                             );
                           } else {
                             // 모니터링 케어 서비스 회원가입 페이지 아직
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PersonalSignupScreen()),
+                                  builder: (context) => const SignupScreen(
+                                        loginType: LoginType.admin,
+                                      )),
                             );
                           }
                         },

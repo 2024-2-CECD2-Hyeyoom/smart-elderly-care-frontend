@@ -1,27 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login_screens/login_screen.dart';
 
-class PersonalSignupScreen extends StatefulWidget {
-  const PersonalSignupScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  final LoginType loginType;
+  const SignupScreen({super.key, required this.loginType});
 
   @override
-  State<PersonalSignupScreen> createState() => _SignUpScreenState();
+  State<SignupScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<PersonalSignupScreen> {
-  String? gender = '남';
-  String selectedCenter = '선택해주세요';
-  String? welfareCenter = '유';
+class _SignUpScreenState extends State<SignupScreen> {
+  String? gender = '';
+  String? welfareCenter = '';
   String selectedInstitutionName = '';
-  DateTime? birthDate;
 
   final nameController = TextEditingController();
-  final addressController = TextEditingController();
   final contactController = TextEditingController();
-  final conditionController = TextEditingController();
   final passwordController = TextEditingController();
   final yearController = TextEditingController();
   final monthController = TextEditingController();
   final dayController = TextEditingController();
+  final defaultCareCodeController = TextEditingController();
+
+  late final LoginType loginType;
+
+  List<TextEditingController> extraCareCodeControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loginType = widget.loginType;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +38,8 @@ class _SignUpScreenState extends State<PersonalSignupScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
+        shadowColor: Colors.black,
+        elevation: 1,
         centerTitle: true,
         title: const Text(
           '회원가입',
@@ -99,36 +110,140 @@ class _SignUpScreenState extends State<PersonalSignupScreen> {
                 ),
 
                 // 관리 기관 유무
+                const SizedBox(height: 25),
+
+                if (loginType == LoginType.user) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('관리(의료/복지) 기관 등록 여부:'),
+                      Row(
+                        children: [
+                          Radio<String>(
+                            value: '등록',
+                            groupValue: welfareCenter,
+                            onChanged: (value) {
+                              setState(() {
+                                welfareCenter = value;
+                              });
+                            },
+                          ),
+                          const Text('등록'),
+                          Radio<String>(
+                            value: '미등록',
+                            groupValue: welfareCenter,
+                            onChanged: (value) {
+                              setState(() {
+                                welfareCenter = value;
+                              });
+                            },
+                          ),
+                          const Text('미등록'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ] else if (loginType == LoginType.admin) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('관리(의료/복지) 기관에 속한 보호자인가요?:'),
+                      Row(
+                        children: [
+                          Radio<String>(
+                            value: '예',
+                            groupValue: welfareCenter,
+                            onChanged: (value) {
+                              setState(() {
+                                welfareCenter = value;
+                              });
+                            },
+                          ),
+                          const Text('예'),
+                          Radio<String>(
+                            value: '아니오',
+                            groupValue: welfareCenter,
+                            onChanged: (value) {
+                              setState(() {
+                                welfareCenter = value;
+                              });
+                            },
+                          ),
+                          const Text('아니오'),
+                        ],
+                      ),
+                      if (welfareCenter == '아니오') ...[
+                        const SizedBox(height: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '케어 대상자의 코드를 입력해주세요',
+                            ),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: defaultCareCodeController,
+                              decoration: const InputDecoration(
+                                hintText: '코드 입력',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            if (extraCareCodeControllers.isNotEmpty)
+                              const SizedBox(height: 8),
+                            // ✅ 동적으로 추가된 입력란들 (삭제 가능)
+                            Column(
+                              children: List.generate(
+                                  extraCareCodeControllers.length, (index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: TextField(
+                                    controller: extraCareCodeControllers[index],
+                                    decoration: InputDecoration(
+                                      hintText: '추가 코드 입력',
+                                      border: const OutlineInputBorder(),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.close,
+                                            color: Colors.grey),
+                                        onPressed: () {
+                                          setState(() {
+                                            extraCareCodeControllers
+                                                .removeAt(index);
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      extraCareCodeControllers
+                                          .add(TextEditingController());
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    Icons.add_circle_outline,
+                                    size: 30,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Text('관리(복지) 기관 계약:'),
-                    const SizedBox(width: 10),
-                    Radio<String>(
-                      value: '유',
-                      groupValue: welfareCenter,
-                      onChanged: (value) {
-                        setState(() {
-                          welfareCenter = value;
-                        });
-                      },
-                    ),
-                    const Text('유'),
-                    Radio<String>(
-                      value: '무',
-                      groupValue: welfareCenter,
-                      onChanged: (value) {
-                        setState(() {
-                          welfareCenter = value;
-                        });
-                      },
-                    ),
-                    const Text('무'),
-                  ],
-                ),
-                // 기관 찾기
-                // 기관 계약 유 일때만 보임
-                if (welfareCenter == '유') ...[
+
+                // 유 / 예 일 때만 기관 찾기 표시
+                if (welfareCenter == '등록' || welfareCenter == '예') ...[
                   Row(
                     children: [
                       Expanded(
@@ -144,9 +259,10 @@ class _SignUpScreenState extends State<PersonalSignupScreen> {
                                 ? '선택된 기관 없음'
                                 : selectedInstitutionName,
                             style: TextStyle(
-                                color: selectedInstitutionName.isEmpty
-                                    ? Colors.grey
-                                    : Colors.black),
+                              color: selectedInstitutionName.isEmpty
+                                  ? Colors.grey
+                                  : Colors.black,
+                            ),
                           ),
                         ),
                       ),
@@ -169,6 +285,7 @@ class _SignUpScreenState extends State<PersonalSignupScreen> {
                     ],
                   ),
                 ],
+
                 const SizedBox(height: 12),
 
                 // 전화번호
@@ -260,7 +377,7 @@ class BirthInput extends StatelessWidget {
         keyboardType: TextInputType.number,
         maxLength: hint == 'YYYY' ? 4 : 2,
         decoration: InputDecoration(
-          counterText: '', // 글자 수 아래 표시 제거
+          counterText: '',
           hintText: hint,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
@@ -273,6 +390,7 @@ class BirthInput extends StatelessWidget {
   }
 }
 
+// 추후 데이터베이스에 직접 등록 후 검색할 수 있도록 변경 필요
 Future<void> showInstitutionSearchDialog(
     BuildContext context, Function(String) onInstitutionSelected) async {
   final TextEditingController searchController = TextEditingController();
@@ -327,7 +445,7 @@ Future<void> showInstitutionSearchDialog(
                       title: Text(e),
                       onTap: () {
                         Navigator.pop(context);
-                        onInstitutionSelected(e); // 선택 콜백
+                        onInstitutionSelected(e);
                       },
                     )),
               ],
