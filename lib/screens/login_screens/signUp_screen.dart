@@ -242,7 +242,7 @@ class _SignUpScreenState extends State<SignupScreen> {
 
                 const SizedBox(height: 12),
 
-                // 유 / 예 일 때만 기관 찾기 표시
+                // 등록 / 예 일 때만 기관 찾기 표시
                 if (welfareCenter == '등록' || welfareCenter == '예') ...[
                   Row(
                     children: [

@@ -21,7 +21,7 @@ class StartScreen extends StatelessWidget {
                 height: 50,
               ),
               ChooseUserType(
-                text: '나의 생활 패턴 보기',
+                text: '나의 생활 패턴 분석 보기',
                 icon: Icons.bar_chart_outlined,
                 onTap: () {
                   Navigator.push(
@@ -34,10 +34,8 @@ class StartScreen extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 30),
-
-              // 🔹 관리자 로그인
               ChooseUserType(
-                text: '모니터링 서비스 이용하기',
+                text: '모니터링 케어 서비스 이용',
                 icon: Icons.admin_panel_settings_rounded,
                 onTap: () {
                   Navigator.push(
@@ -58,7 +56,7 @@ class StartScreen extends StatelessWidget {
   }
 }
 
-//사용자 선택 버튼 위젯
+//서비스 유형 버튼 위젯
 class ChooseUserType extends StatelessWidget {
   final String text;
   final IconData icon;
