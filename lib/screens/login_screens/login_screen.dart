@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/signUp_screen.dart';
+import 'package:frontend/screens/login_screens/find_password_screen.dart';
 
 enum LoginType { user, admin }
 
@@ -33,7 +34,9 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 30),
                   Text(
-                    loginType == LoginType.user ? '나의 생활 패턴 관리' : '모니터링 케어 서비스',
+                    loginType == LoginType.user
+                        ? '나의 생활 패턴 분석 서비스'
+                        : '모니터링 케어 서비스',
                     style: const TextStyle(
                         fontSize: 25, fontWeight: FontWeight.w400),
                   ),
@@ -87,7 +90,26 @@ class LoginScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (loginType == LoginType.user) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const FindPasswordScreen(
+                                    loginType: LoginType.user),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const FindPasswordScreen(
+                                        loginType: LoginType.admin,
+                                      )),
+                            );
+                          }
+                        },
                         child: const Text(
                           '비밀번호 찾기',
                           style: TextStyle(color: Colors.grey),
@@ -105,7 +127,6 @@ class LoginScreen extends StatelessWidget {
                               ),
                             );
                           } else {
-                            // 모니터링 케어 서비스 회원가입 페이지 아직
                             Navigator.push(
                               context,
                               MaterialPageRoute(
