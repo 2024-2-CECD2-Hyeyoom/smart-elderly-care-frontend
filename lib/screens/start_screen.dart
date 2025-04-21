@@ -14,7 +14,7 @@ class StartScreen extends StatelessWidget {
           child: Column(
             children: [
               const Text(
-                '사용자 유형을 선택해주세요',
+                '서비스 유형을 선택해주세요',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
               ),
               const SizedBox(
