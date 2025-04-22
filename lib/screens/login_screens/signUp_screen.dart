@@ -13,9 +13,12 @@ class _SignUpScreenState extends State<SignupScreen> {
   String? gender = '';
   String? welfareCenter = '';
   String selectedInstitutionName = '';
+  String? _idStatusMessage;
+  Color? _idStatusColor;
 
   final nameController = TextEditingController();
   final contactController = TextEditingController();
+  final idController = TextEditingController();
   final passwordController = TextEditingController();
   final yearController = TextEditingController();
   final monthController = TextEditingController();
@@ -25,6 +28,22 @@ class _SignUpScreenState extends State<SignupScreen> {
   late final LoginType loginType;
 
   List<TextEditingController> extraCareCodeControllers = [];
+
+  Widget _buildLabeledInput(
+    String label,
+    TextEditingController controller, {
+    Widget? suffix,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: '입력해주세요',
+        suffixIcon: suffix,
+        border: const UnderlineInputBorder(),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -286,10 +305,58 @@ class _SignUpScreenState extends State<SignupScreen> {
                   ),
                 ],
 
-                const SizedBox(height: 12),
-
                 // 전화번호
                 _buildLabeledInput('전화번호', contactController),
+
+                const SizedBox(height: 12),
+
+                // 아이디 입력 + 중복 확인 버튼
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildLabeledInput(
+                      '아이디',
+                      idController,
+                      suffix: TextButton(
+                        onPressed: () {
+                          final id = idController.text.trim();
+
+                          if (id.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('아이디를 입력해주세요.')),
+                            );
+                            return;
+                          }
+
+                          // 중복확인예시용 아이디
+                          final isAvailable = id != "test";
+
+                          setState(() {
+                            if (isAvailable) {
+                              _idStatusMessage = '사용 가능한 아이디입니다.';
+                              _idStatusColor = Colors.green;
+                            } else {
+                              _idStatusMessage = '사용 불가능한 아이디입니다.';
+                              _idStatusColor = Colors.red;
+                            }
+                          });
+                        },
+                        child:
+                            const Text('중복 확인', style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                    if (_idStatusMessage != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        _idStatusMessage!,
+                        style: TextStyle(
+                          color: _idStatusColor,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
 
                 // 비밀번호
                 const SizedBox(height: 12),
@@ -325,16 +392,6 @@ class _SignUpScreenState extends State<SignupScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLabeledInput(String label, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: '입력해주세요',
       ),
     );
   }
@@ -460,5 +517,18 @@ Future<void> showInstitutionSearchDialog(
         },
       );
     },
+  );
+}
+
+Widget _buildLabeledInput(String label, TextEditingController controller,
+    {Widget? suffix}) {
+  return TextField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: label,
+      hintText: '입력해주세요',
+      border: const OutlineInputBorder(),
+      suffixIcon: suffix, // 💡 여기에 suffix를 전달받을 수 있도록
+    ),
   );
 }
