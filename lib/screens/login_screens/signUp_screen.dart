@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/login_screen.dart';
+import 'package:frontend/widgets/custom_popUp.dart';
 
 class SignupScreen extends StatefulWidget {
   final LoginType loginType;
@@ -374,7 +375,12 @@ class _SignUpScreenState extends State<SignupScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      // 가입 로직
+                      // 가입 로직 추가 예정, 임시로 가입 완료 팝업
+                      showCustomPopUp(
+                        context: context,
+                        title: '회원가입 완료',
+                        content: '회원가입이 완료되었습니다. \n로그인을 진행해주세요.',
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(180, 48),
@@ -517,18 +523,5 @@ Future<void> showInstitutionSearchDialog(
         },
       );
     },
-  );
-}
-
-Widget _buildLabeledInput(String label, TextEditingController controller,
-    {Widget? suffix}) {
-  return TextField(
-    controller: controller,
-    decoration: InputDecoration(
-      labelText: label,
-      hintText: '입력해주세요',
-      border: const OutlineInputBorder(),
-      suffixIcon: suffix, // 💡 여기에 suffix를 전달받을 수 있도록
-    ),
   );
 }

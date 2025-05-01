@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/signUp_screen.dart';
 import 'package:frontend/screens/login_screens/find_password_screen.dart';
+import 'package:frontend/widgets/custom_popUp.dart';
 
 enum LoginType { user, admin }
 
 class LoginScreen extends StatelessWidget {
-  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final ValueNotifier<bool> autoLogin = ValueNotifier(false); // 자동 로그인 상태 관리
 
@@ -52,7 +53,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 60),
                   TextField(
-                    controller: phoneController,
+                    controller: idController,
                     decoration: const InputDecoration(
                       labelText: '아이디:',
                       hintText: '입력해주세요',
@@ -150,7 +151,22 @@ class LoginScreen extends StatelessWidget {
                       minimumSize: const Size(160, 50),
                     ),
                     onPressed: () {
-                      // 로그인 로직
+                      final id = idController.text.trim();
+                      final pw = passwordController.text;
+
+                      // 로그인 실패 조건 예시 (추후 서버 연동 시 수정)
+                      if (id != "123" || pw != "123") {
+                        // 로그인 실패 팝업
+                        showCustomPopUp(
+                          context: context,
+                          title: '로그인 실패',
+                          content: '아이디 또는 비밀번호가 올바르지 않습니다.',
+                        );
+                        return;
+                      }
+
+                      // 로그인 성공 시 페이지 이동
+                      // 예: Navigator.pushReplacement(...);
                     },
                     child: const Text(
                       '로그인',
