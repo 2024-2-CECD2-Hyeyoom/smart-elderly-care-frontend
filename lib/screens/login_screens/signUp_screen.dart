@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/login_screen.dart';
 import 'package:frontend/widgets/custom_popUp.dart';
+import 'package:frontend/widgets/custom_snackbar.dart';
 
 class SignupScreen extends StatefulWidget {
   final LoginType loginType;
@@ -323,9 +324,7 @@ class _SignUpScreenState extends State<SignupScreen> {
                           final id = idController.text.trim();
 
                           if (id.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('아이디를 입력해주세요.')),
-                            );
+                            showMessageBanner(context, '아이디를 입력해주세요.');
                             return;
                           }
 
@@ -376,10 +375,10 @@ class _SignUpScreenState extends State<SignupScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       // 가입 로직 추가 예정, 임시로 가입 완료 팝업
-                      showCustomPopUp(
+                      showDialog(
                         context: context,
-                        title: '회원가입 완료',
-                        content: '회원가입이 완료되었습니다. \n로그인을 진행해주세요.',
+                        builder: (_) => const CustomDialog(
+                            content: '회원가입이 완료되었습니다. \n로그인을 진행해주세요.'),
                       );
                     },
                     style: ElevatedButton.styleFrom(

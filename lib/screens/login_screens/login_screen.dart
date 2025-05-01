@@ -157,12 +157,11 @@ class LoginScreen extends StatelessWidget {
                       // 로그인 실패 조건 예시 (추후 서버 연동 시 수정)
                       if (id != "123" || pw != "123") {
                         // 로그인 실패 팝업
-                        showCustomPopUp(
+                        showDialog(
                           context: context,
-                          title: '로그인 실패',
-                          content: '아이디 또는 비밀번호가 올바르지 않습니다.',
+                          builder: (_) => const CustomDialog(
+                              content: '아이디 또는 비밀번호가 올바르지 않습니다.'),
                         );
-                        return;
                       }
 
                       // 로그인 성공 시 페이지 이동

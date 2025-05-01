@@ -102,7 +102,7 @@ class _FindPasswordScreenState extends State<FindPasswordScreen> {
                       backgroundColor: Colors.blue,
                     ),
                     onPressed: () {
-                      // 🔐 비밀번호 찾기 로직 (서버 요청 등)
+                      // 비밀번호 찾기 로직 (서버 요청 등)
                       /*ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('비밀번호 찾기 요청 전송됨')),
                       );*/
