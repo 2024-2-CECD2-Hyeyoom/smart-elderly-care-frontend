@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/signUp_screen.dart';
 import 'package:frontend/screens/login_screens/find_password_screen.dart';
 import 'package:frontend/widgets/custom_popUp.dart';
+import 'package:frontend/screens/home_screen.dart';
 
 enum LoginType { user, admin }
 
@@ -154,18 +155,23 @@ class LoginScreen extends StatelessWidget {
                       final id = idController.text.trim();
                       final pw = passwordController.text;
 
-                      // 로그인 실패 조건 예시 (추후 서버 연동 시 수정)
                       if (id != "123" || pw != "123") {
-                        // 로그인 실패 팝업
                         showDialog(
                           context: context,
                           builder: (_) => const CustomDialog(
-                              content: '아이디 또는 비밀번호가 올바르지 않습니다.'),
+                            content: '아이디 또는 비밀번호가 올바르지 않습니다.',
+                          ),
                         );
+                        return;
                       }
 
-                      // 로그인 성공 시 페이지 이동
-                      // 예: Navigator.pushReplacement(...);
+                      // 로그인 성공 → HomeScreen으로 이동
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => HomeScreen(loginType: loginType),
+                        ),
+                      );
                     },
                     child: const Text(
                       '로그인',
