@@ -31,6 +31,41 @@ class _SignUpScreenState extends State<SignupScreen> {
 
   List<TextEditingController> extraCareCodeControllers = [];
 
+  bool validateFieldsForSignup() {
+    final basicFieldsEmpty = nameController.text.trim().isEmpty ||
+        idController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty ||
+        contactController.text.trim().isEmpty ||
+        yearController.text.trim().isEmpty ||
+        monthController.text.trim().isEmpty ||
+        dayController.text.trim().isEmpty;
+
+    if (loginType == LoginType.user) {
+      if (basicFieldsEmpty || welfareCenter == null || welfareCenter!.isEmpty) {
+        return true;
+      }
+      return false;
+    }
+
+    if (loginType == LoginType.admin) {
+      if (basicFieldsEmpty || welfareCenter == null || welfareCenter!.isEmpty) {
+        return true;
+      }
+
+      if (welfareCenter == '아니오') {
+        if (defaultCareCodeController.text.trim().isEmpty) return true;
+
+        for (var controller in extraCareCodeControllers) {
+          if (controller.text.trim().isEmpty) return true;
+        }
+      }
+
+      return false;
+    }
+
+    return true;
+  }
+
   Widget _buildLabeledInput(
     String label,
     TextEditingController controller, {
@@ -374,6 +409,10 @@ class _SignUpScreenState extends State<SignupScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
+                      if (validateFieldsForSignup()) {
+                        showMessageBanner(context, '모든 정보를 입력해주세요');
+                        return;
+                      }
                       // 가입 로직 추가 예정, 임시로 가입 완료 팝업
                       showDialog(
                         context: context,

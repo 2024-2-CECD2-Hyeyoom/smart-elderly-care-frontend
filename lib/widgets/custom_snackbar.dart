@@ -7,13 +7,13 @@ class CustomMessageBanner extends StatelessWidget {
   const CustomMessageBanner({
     super.key,
     required this.message,
-    this.backgroundColor = const Color(0xFF323232), // Flutter ±âº» SnackBar »ö
+    this.backgroundColor = const Color(0xFF323232), // Flutter ê¸°ë³¸ SnackBar ìƒ‰
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent, // Åõ¸í ¹è°æ
+      color: Colors.transparent, // íˆ¬ëª… ë°°ê²½
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.symmetric(horizontal: 0),
@@ -37,7 +37,7 @@ void showMessageBanner(
   final overlay = Overlay.of(context);
   final entry = OverlayEntry(
     builder: (_) => Positioned(
-      bottom: 0, // SnackBarÃ³·³ ÇÏ´Ü¿¡ °íÁ¤
+      bottom: 0, // SnackBarì²˜ëŸ¼ í•˜ë‹¨ì— ê³ ì •
       left: 0,
       right: 0,
       child: CustomMessageBanner(

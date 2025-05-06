@@ -56,7 +56,7 @@ class StartScreen extends StatelessWidget {
   }
 }
 
-//서비스 유형 버튼 위젯
+//사용자 선택 버튼 위젯
 class ChooseUserType extends StatelessWidget {
   final String text;
   final IconData icon;
