@@ -31,6 +31,13 @@ class _SignUpScreenState extends State<SignupScreen> {
 
   List<TextEditingController> extraCareCodeControllers = [];
 
+  bool anyFieldEmpty() {
+    return nameController.text.trim().isEmpty ||
+        idController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty ||
+        contactController.text.trim().isEmpty;
+  }
+
   Widget _buildLabeledInput(
     String label,
     TextEditingController controller, {
@@ -374,6 +381,10 @@ class _SignUpScreenState extends State<SignupScreen> {
                 Center(
                   child: ElevatedButton(
                     onPressed: () {
+                      if (anyFieldEmpty()) {
+                        showMessageBanner(context, '모든 정보를 입력해주세요');
+                        return;
+                      }
                       // 가입 로직 추가 예정, 임시로 가입 완료 팝업
                       showDialog(
                         context: context,
