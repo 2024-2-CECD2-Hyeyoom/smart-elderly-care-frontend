@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/login_screens/signUp_screen.dart';
+import 'package:frontend/screens/login_screens/sign_up_screen.dart';
 import 'package:frontend/screens/login_screens/find_password_screen.dart';
-import 'package:frontend/widgets/custom_popUp.dart';
+import 'package:frontend/widgets/custom_pop_up.dart';
 import 'package:frontend/screens/home_screen.dart';
 
 enum LoginType { user, admin }
