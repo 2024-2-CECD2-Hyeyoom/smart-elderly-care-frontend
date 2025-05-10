@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/login_screen.dart';
-import 'package:frontend/widgets/custom_popUp.dart';
+import 'package:frontend/widgets/custom_pop_up.dart';
 import 'package:frontend/widgets/custom_snackbar.dart';
 
 class SignupScreen extends StatefulWidget {

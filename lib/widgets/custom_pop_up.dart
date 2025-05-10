@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// 팝업창 위젯 (예: 로그인 실패, 회원가입 완료 등)
+
 class CustomDialog extends StatelessWidget {
   final String title;
   final String content;
