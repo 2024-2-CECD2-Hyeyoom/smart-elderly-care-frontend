@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/edit_id.dart';
+import 'package:frontend/widgets/user_info_box.dart';
 
 class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});
@@ -32,7 +33,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
           children: [
             const Icon(Icons.account_circle, size: 100, color: Colors.grey),
             const SizedBox(height: 24),
-            _buildInfoBox('이름: 김철수(남)'),
+            const UserInfoBox(text: '이름: 김철수(남)'),
             EditIdField(
               initialId: '1234',
               onSave: (newId) {
@@ -40,10 +41,10 @@ class _MyPageScreenState extends State<MyPageScreen> {
                 print('변경된 아이디: $newId');
               },
             ),
-            _buildInfoBox('생년월일: 1900년 00월 00일'),
-            _buildInfoBox('전화번호: 010-0000-0000'),
-            _buildInfoBox('고유코드: abc_1234'),
-            _buildInfoBox('관리기관: 서울시 강남구 OO복지센터'),
+            const UserInfoBox(text: '생년월일: 1900년 00월 00일'),
+            const UserInfoBox(text: '전화번호: 010-0000-0000'),
+            const UserInfoBox(text: '고유코드: abc_1234'),
+            const UserInfoBox(text: '관리기관: 서울시 강남구 OO복지센터'),
             const SizedBox(height: 20),
             TextButton(
               onPressed: () {},

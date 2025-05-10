@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// 스낵바 팝업창
+//(예: (회원가입시 모든 정보를 입력하지 않고 회원가입을 누를 경우)모든 정보를 입력해주세요)
+
 class CustomMessageBanner extends StatelessWidget {
   final String message;
   final Color backgroundColor;

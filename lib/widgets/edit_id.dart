@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/custom_snackbar.dart'; // showMessageBanner 같은 유틸 불러오기
+import 'package:frontend/widgets/custom_snackbar.dart';
+
+// 마이페이지에서 아이디 수정하는 기능 위젯
 
 class EditIdField extends StatefulWidget {
   final String initialId;
@@ -80,7 +82,10 @@ class _EditableIdFieldState extends State<EditIdField> {
                           suffixIcon: TextButton(
                             onPressed: _checkDuplicate,
                             child: const Text('중복 확인',
-                                style: TextStyle(fontSize: 12)),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color.fromARGB(255, 48, 81, 120),
+                                )),
                           ),
                         ),
                       )
@@ -91,7 +96,12 @@ class _EditableIdFieldState extends State<EditIdField> {
               _isEditing
                   ? TextButton(
                       onPressed: _save,
-                      child: const Text('저장'),
+                      child: const Text(
+                        '저장',
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
                     )
                   : TextButton.icon(
                       onPressed: () {
