@@ -4,6 +4,7 @@ import 'package:frontend/screens/login_screens/login_screen.dart';
 import 'package:frontend/screens/login_screens/sign_up_screen.dart';
 import 'package:frontend/screens/start_screen.dart';
 import 'package:frontend/screens/service_for_me/my_page.dart';
+import 'package:frontend/screens/service_for_carer/my_page.dart';
 
 void main() {
   runApp(const HyApp());
@@ -15,7 +16,7 @@ class HyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: StartScreen(),
+      home: CarerMyPageScreen(),
     );
   }
 }
