@@ -6,6 +6,9 @@ import 'package:frontend/screens/start_screen.dart';
 import 'package:frontend/screens/service_for_me/my_page.dart';
 import 'package:frontend/screens/service_for_carer/my_page.dart';
 import 'package:frontend/screens/service_for_center/my_page.dart';
+import 'package:frontend/screens/service_for_center/home_screen.dart';
+import 'package:frontend/screens/service_for_carer/home_screen.dart';
+import 'package:frontend/screens/service_for_me/home_screen.dart';
 
 void main() {
   runApp(const HyApp());
@@ -17,7 +20,7 @@ class HyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: CenterMyPageScreen(),
+      home: StartScreen(),
     );
   }
 }

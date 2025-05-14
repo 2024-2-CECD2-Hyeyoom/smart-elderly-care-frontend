@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/sign_up_screen.dart';
 import 'package:frontend/screens/login_screens/find_password_screen.dart';
 import 'package:frontend/widgets/custom_pop_up.dart';
-import 'package:frontend/screens/home_screen.dart';
+import 'package:frontend/screens/service_for_me/home_screen.dart';
+import 'package:frontend/screens/service_for_carer/home_screen.dart';
 
 enum LoginType { user, admin }
 
@@ -169,7 +170,7 @@ class LoginScreen extends StatelessWidget {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => HomeScreen(loginType: loginType),
+                          builder: (_) => const CarerHomeScreen(),
                         ),
                       );
                     },
