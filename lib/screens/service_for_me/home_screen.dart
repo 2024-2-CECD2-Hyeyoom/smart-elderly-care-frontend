@@ -4,14 +4,14 @@ import 'package:frontend/models/dashboard_data.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/user_summary_card.dart';
 
-class UserHomeScreen extends StatefulWidget {
-  const UserHomeScreen({super.key});
+class MyHomeScreen extends StatefulWidget {
+  const MyHomeScreen({super.key});
 
   @override
-  _UserHomeScreenState createState() => _UserHomeScreenState();
+  _MyHomeScreenState createState() => _MyHomeScreenState();
 }
 
-class _UserHomeScreenState extends State<UserHomeScreen> {
+class _MyHomeScreenState extends State<MyHomeScreen> {
   int _currentIndex = 0;
 
   @override

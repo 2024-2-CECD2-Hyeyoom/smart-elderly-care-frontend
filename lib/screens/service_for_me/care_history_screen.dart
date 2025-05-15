@@ -5,14 +5,14 @@ import 'package:frontend/widgets/care_history_card.dart';
 import 'package:frontend/models/care_history_list.dart';
 import 'package:frontend/models/care_history.dart';
 
-class CareHistoryScreen extends StatefulWidget {
-  const CareHistoryScreen({super.key});
+class MyCareHistoryScreen extends StatefulWidget {
+  const MyCareHistoryScreen({super.key});
 
   @override
   _CareHistoryScreenState createState() => _CareHistoryScreenState();
 }
 
-class _CareHistoryScreenState extends State<CareHistoryScreen> {
+class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
   String _searchQuery = '';
   DateTimeRange? _selectedRange;
   int _currentIndex = 2;
