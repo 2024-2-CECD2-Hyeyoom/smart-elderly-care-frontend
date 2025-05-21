@@ -15,6 +15,7 @@ class CareHistoryCard extends StatelessWidget {
     final formattedDate = DateFormat('yyyy년 MM월 dd일').format(history.visitDate);
 
     return Card(
+      color: Colors.white,
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(

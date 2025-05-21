@@ -19,11 +19,12 @@ class UserSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
+        padding: const EdgeInsets.fromLTRB(24, 15, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
