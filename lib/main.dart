@@ -10,6 +10,7 @@ import 'package:frontend/screens/service_for_center/home_screen.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
 import 'package:frontend/screens/service_for_me/home_screen.dart';
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
+import 'package:frontend/screens/service_for_me/analysis_screen.dart';
 
 void main() {
   runApp(const HyApp());
@@ -21,7 +22,7 @@ class HyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: MyHomeScreen(),
+      home: WeeklyReportScreen(),
     );
   }
 }
