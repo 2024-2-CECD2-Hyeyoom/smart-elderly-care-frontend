@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
-class SleepAnalysisGraph extends StatelessWidget {
-  final List<double> thisWeekSleep = [6.5, 7.0, 5.8, 6.2, 6.7, 5.5, 6.9];
-  final double lastWeekAverage = 6.0;
+class GoOutAnalysisGraph extends StatelessWidget {
+  final List<double> thisWeekGoOutTime = [6.5, 7.0, 5.8, 6.2, 6.7, 5.5, 6.9];
+  final double lastWeekAverageTime = 6.0;
 
   final DateTime selectedDate;
 
-  SleepAnalysisGraph({super.key, required this.selectedDate});
+  GoOutAnalysisGraph({super.key, required this.selectedDate});
 
   List<String> get days {
     // 선택한 날짜 기준으로 7일 전부터 오늘까지 날짜 문자열 리스트 생성
@@ -18,12 +18,6 @@ class SleepAnalysisGraph extends StatelessWidget {
     });
   }
 
-/*
-나중에 데이터 받아올때 수정
-Text('취침시각 : ${sleepTimeFormatted}')
-Text('기상시각 : ${wakeTimeFormatted}')
-Text('총 수면 시간 : ${totalSleepDurationFormatted}')
-*/
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -33,18 +27,9 @@ Text('총 수면 시간 : ${totalSleepDurationFormatted}')
         children: [
           const Row(
             children: [
-              Icon(Icons.nightlight_round, size: 20),
+              Icon(Icons.door_back_door, size: 20),
               SizedBox(width: 8),
-              Text('취침시각 : 23시 30분',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              Icon(Icons.wb_sunny, size: 20),
-              SizedBox(width: 8),
-              Text('기상시각 : 06시 30분',
+              Text('외출 횟수 : 3 회',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
             ],
           ),
@@ -55,7 +40,7 @@ Text('총 수면 시간 : ${totalSleepDurationFormatted}')
               children: [
                 Icon(Icons.access_time, size: 20),
                 SizedBox(width: 8),
-                Text('총 수면 시간 : 7시간 00분',
+                Text('총 외출 시간 : 8시간 00분',
                     style:
                         TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
               ],
@@ -132,7 +117,7 @@ Text('총 수면 시간 : ${totalSleepDurationFormatted}')
                 extraLinesData: ExtraLinesData(
                   horizontalLines: [
                     HorizontalLine(
-                      y: lastWeekAverage,
+                      y: lastWeekAverageTime,
                       color: Colors.orange,
                       strokeWidth: 2,
                       dashArray: [4, 2],
@@ -155,12 +140,12 @@ Text('총 수면 시간 : ${totalSleepDurationFormatted}')
   }
 
   List<BarChartGroupData> _buildBarGroups() {
-    return List.generate(thisWeekSleep.length, (i) {
+    return List.generate(thisWeekGoOutTime.length, (i) {
       return BarChartGroupData(
         x: i,
         barRods: [
           BarChartRodData(
-            toY: thisWeekSleep[i],
+            toY: thisWeekGoOutTime[i],
             color: Colors.deepPurple,
             width: 18,
             borderRadius: const BorderRadius.only(
