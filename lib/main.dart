@@ -12,6 +12,7 @@ import 'package:frontend/screens/service_for_me/home_screen.dart';
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
 import 'package:frontend/screens/service_for_me/analysis_screen.dart';
 import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const HyApp());
@@ -23,7 +24,16 @@ class HyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: CarerWeeklyReportScreen(),
+      debugShowCheckedModeBanner: false,
+      home: WeeklyReportScreen(),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('ko'), // 한국어만 지원
+      ],
     );
   }
 }
