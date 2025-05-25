@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/go_out_analysis_graph.dart';
 import 'package:frontend/widgets/sleep_analysis_graph.dart';
 import 'package:frontend/widgets/weekly_analysis_graph.dart';
 import 'package:frontend/widgets/custom_layout.dart';
@@ -92,11 +93,11 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
         onTap: _pickDate,
         child: Row(
           children: [
-            const Icon(Icons.calendar_today, size: 16),
+            const Icon(Icons.calendar_month_outlined, size: 25),
             const SizedBox(width: 8),
             Text(
               '선택된 날짜: ${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일',
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -151,7 +152,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       case 1:
         return SleepAnalysisGraph(selectedDate: _selectedDate);
       case 2:
-        return const Text("외출 분석 레포트");
+        return GoOutAnalysisGraph(selectedDate: _selectedDate);
       default:
         return const SizedBox.shrink();
     }
