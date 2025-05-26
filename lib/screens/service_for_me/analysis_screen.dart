@@ -61,10 +61,9 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildUserInfoBox(),
-            const SizedBox(height: 8),
+            const SizedBox(height: 40),
             _buildDateRange(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 50),
             _buildTabSelector(),
             const SizedBox(height: 16),
             _buildLegend(),
