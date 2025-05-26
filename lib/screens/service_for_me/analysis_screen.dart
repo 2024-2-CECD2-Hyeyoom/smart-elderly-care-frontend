@@ -34,7 +34,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color.fromARGB(255, 48, 81, 120), // 상단 색
+              primary: Color.fromARGB(255, 48, 81, 120),
             ),
           ),
           child: child!,
@@ -148,7 +148,7 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   Widget _buildSelectedContent() {
     switch (_selectedTabIndex) {
       case 0:
-        return WeeklyAnalysisChart();
+        return WeeklyAnalysisChart(selectedDate: _selectedDate);
       case 1:
         return SleepAnalysisGraph(selectedDate: _selectedDate);
       case 2:
