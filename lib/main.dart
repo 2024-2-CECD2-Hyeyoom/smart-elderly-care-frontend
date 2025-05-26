@@ -7,6 +7,7 @@ import 'package:frontend/screens/service_for_me/my_page.dart';
 import 'package:frontend/screens/service_for_carer/my_page.dart';
 import 'package:frontend/screens/service_for_center/my_page.dart';
 import 'package:frontend/screens/service_for_center/home_screen.dart';
+import 'package:frontend/screens/service_for_center/analysis_screen.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
 import 'package:frontend/screens/service_for_me/home_screen.dart';
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
@@ -25,7 +26,7 @@ class HyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: WeeklyReportScreen(),
+      home: CenterWeeklyReportScreen(),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
