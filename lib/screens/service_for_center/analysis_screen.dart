@@ -113,7 +113,7 @@ class _CenterWeeklyReportScreenState extends State<CenterWeeklyReportScreen> {
   Widget _buildSelectedContent() {
     switch (_selectedTabIndex) {
       case 0:
-        return WeeklyAnalysisChart(); // 주간 분석 그래프
+      //return WeeklyAnalysisChart(); // 주간 분석 그래프
       case 1:
         return const Text("수면 분석 레포트");
       case 2:
