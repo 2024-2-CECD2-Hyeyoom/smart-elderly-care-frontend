@@ -43,7 +43,10 @@ class WeeklyAnalysisChart extends StatelessWidget {
       future: fetchWeeklyAnalysisData(selectedDate),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+            color: Color.fromARGB(255, 48, 81, 120),
+          ));
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {

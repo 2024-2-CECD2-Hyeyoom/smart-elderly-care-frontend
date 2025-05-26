@@ -36,7 +36,9 @@ class SleepAnalysisGraph extends StatelessWidget {
       future: fetchSleepAnalysisData(selectedDate),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+                  color: Color.fromARGB(255, 48, 81, 120)));
         }
 
         if (!snapshot.hasData) {
@@ -69,7 +71,7 @@ class SleepAnalysisGraph extends StatelessWidget {
                     barTouchData: BarTouchData(
                       enabled: true,
                       touchTooltipData: BarTouchTooltipData(
-                        tooltipBgColor: Colors.black.withOpacity(0.75),
+                        tooltipBgColor: Colors.black.withValues(alpha: 0.75),
                         getTooltipItem: (group, groupIndex, rod, rodIndex) {
                           return BarTooltipItem(
                             '${rod.toY.toStringAsFixed(1)} 시간',
@@ -88,7 +90,7 @@ class SleepAnalysisGraph extends StatelessWidget {
                       show: true,
                       horizontalInterval: 2,
                       getDrawingHorizontalLine: (value) => FlLine(
-                        color: Colors.grey.withOpacity(0.3),
+                        color: Colors.grey.withValues(alpha: 0.3),
                         strokeWidth: 1,
                         dashArray: [4, 2],
                       ),
