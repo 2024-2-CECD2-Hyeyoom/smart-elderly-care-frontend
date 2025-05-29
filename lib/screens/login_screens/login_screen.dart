@@ -1,186 +1,197 @@
+// lib/screens/login_screens/login_screen.dart
+
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/login_screens/sign_up_screen.dart';
 import 'package:frontend/screens/login_screens/find_password_screen.dart';
+import 'package:frontend/screens/login_screens/sign_up_screen.dart';
 import 'package:frontend/widgets/custom_pop_up.dart';
-import 'package:frontend/screens/service_for_me/home_screen.dart';
-import 'package:frontend/screens/service_for_carer/home_screen.dart';
+import 'package:frontend/widgets/custom_snackbar.dart';
+import 'package:frontend/services/auth_service.dart';
+import 'package:frontend/services/secure_storage_service.dart';
+import 'package:frontend/models/login_request.dart';
+import 'package:frontend/models/login_response.dart';
+import 'package:frontend/screens/service_for_me/home_screen.dart' as me;
+import 'package:frontend/screens/service_for_carer/home_screen.dart' as carer;
 
 enum LoginType { user, admin }
 
-class LoginScreen extends StatelessWidget {
-  final TextEditingController idController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final ValueNotifier<bool> autoLogin = ValueNotifier(false); // 자동 로그인 상태 관리
-
+class LoginScreen extends StatefulWidget {
   final LoginType loginType;
+  const LoginScreen({super.key, required this.loginType});
 
-  LoginScreen({super.key, required this.loginType});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _idController = TextEditingController();
+  final _pwController = TextEditingController();
+  final _autoLogin = ValueNotifier<bool>(false);
+
+  bool _isLoading = false;
+
+  Future<void> _onLoginPressed() async {
+    final phone = _idController.text.trim();
+    final password = _pwController.text;
+    if (phone.isEmpty || password.isEmpty) {
+      showMessageBanner(context, '아이디와 비밀번호를 모두 입력해주세요.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final req = LoginRequest(phone: phone, password: password);
+
+      final LoginResponse resp = await AuthService.instance.login(req);
+
+      if (!mounted) return;
+      if (resp.isSuccess && resp.result != null) {
+        // 1) 토큰 저장
+        await SecureStorageService.writeToken(resp.result!.token);
+
+        // 2) 홈 화면으로 이동
+        if (widget.loginType == LoginType.user) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const me.HomeScreen(loginType: LoginType.user),
+            ),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  const carer.HomeScreen(loginType: LoginType.admin),
+            ),
+          );
+        }
+      } else {
+        showMessageBanner(context, resp.message);
+      }
+    } catch (e) {
+      showMessageBanner(context, '서버에 연결할 수 없습니다.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
+      appBar: AppBar(backgroundColor: Colors.white),
       body: GestureDetector(
-        onTap: () {
-          // 입력창 포커스 해제 → 키보드 닫힘
-          FocusScope.of(context).unfocus();
-        },
+        onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 30),
-                  Text(
-                    loginType == LoginType.user
-                        ? '나의 생활 패턴 분석 서비스'
-                        : '모니터링 케어 서비스',
-                    style: const TextStyle(
-                        fontSize: 25, fontWeight: FontWeight.w400),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 30),
+                Text(
+                  widget.loginType == LoginType.user
+                      ? '나의 생활 패턴 분석 서비스'
+                      : '모니터링 케어 서비스',
+                  style: const TextStyle(
+                      fontSize: 25, fontWeight: FontWeight.w400),
+                ),
+                const SizedBox(height: 20),
+                const Text('로그인',
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                const Text('아이디, 비밀번호를 입력해주세요',
+                    style: TextStyle(color: Colors.grey)),
+                const SizedBox(height: 60),
+
+                // 아이디 입력
+                TextField(
+                  controller: _idController,
+                  decoration: const InputDecoration(
+                    labelText: '아이디:',
+                    hintText: '입력해주세요',
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    '로그인',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+
+                // 비밀번호 입력
+                TextField(
+                  controller: _pwController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: '비밀번호:',
+                    hintText: '입력해주세요',
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    '아이디, 비밀번호를 입력해주세요',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 60),
-                  TextField(
-                    controller: idController,
-                    decoration: const InputDecoration(
-                      labelText: '아이디:',
-                      hintText: '입력해주세요',
-                      border: OutlineInputBorder(),
+                ),
+                const SizedBox(height: 12),
+
+                // 자동로그인 체크박스
+                Row(
+                  children: [
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _autoLogin,
+                      builder: (context, value, _) {
+                        return Checkbox(
+                          value: value,
+                          onChanged: (v) => _autoLogin.value = v ?? false,
+                        );
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: '비밀번호:',
-                      hintText: '입력해주세요',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      ValueListenableBuilder(
-                        valueListenable: autoLogin,
-                        builder: (context, value, child) {
-                          return Checkbox(
-                            value: value,
-                            onChanged: (newValue) {
-                              autoLogin.value = newValue!;
-                            },
-                          );
-                        },
-                      ),
-                      const Text('자동 로그인'),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          if (loginType == LoginType.user) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const FindPasswordScreen(
-                                    loginType: LoginType.user),
-                              ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const FindPasswordScreen(
-                                        loginType: LoginType.admin,
-                                      )),
-                            );
-                          }
-                        },
-                        child: const Text(
-                          '비밀번호 찾기',
-                          style: TextStyle(color: Colors.grey),
+                    const Text('자동 로그인'),
+                  ],
+                ),
+
+                // 비밀번호 찾기 / 회원가입 링크
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              FindPasswordScreen(loginType: widget.loginType),
                         ),
                       ),
-                      const Text('|'),
-                      TextButton(
-                        onPressed: () {
-                          if (loginType == LoginType.user) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SignupScreen(
-                                    loginType: LoginType.user),
-                              ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SignupScreen(
-                                        loginType: LoginType.admin,
-                                      )),
-                            );
-                          }
-                        },
-                        child: const Text(
-                          '회원가입',
-                          style: TextStyle(color: Colors.grey),
+                      child: const Text('비밀번호 찾기',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                    const Text('|'),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              SignupScreen(loginType: widget.loginType),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
+                      child: const Text('회원가입',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // 로그인 버튼
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _onLoginPressed,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       minimumSize: const Size(160, 50),
                     ),
-                    onPressed: () {
-                      final id = idController.text.trim();
-                      final pw = passwordController.text;
-
-                      if (id != "123" || pw != "123") {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const CustomDialog(
-                            content: '아이디 또는 비밀번호가 올바르지 않습니다.',
-                          ),
-                        );
-                        return;
-                      }
-
-                      // 로그인 성공 → HomeScreen으로 이동
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CarerHomeScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      '로그인',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('로그인',
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
