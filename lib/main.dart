@@ -26,9 +26,7 @@ class HyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SignupScreen(
-        loginType: LoginType.user,
-      ),
+      home: LoginScreen(loginType: LoginType.admin),
     );
   }
 }

@@ -9,8 +9,10 @@ import 'package:frontend/services/auth_service.dart';
 import 'package:frontend/services/secure_storage_service.dart';
 import 'package:frontend/models/login_request.dart';
 import 'package:frontend/models/login_response.dart';
+// 홈스크린을 별칭으로 import
 import 'package:frontend/screens/service_for_me/home_screen.dart' as me;
 import 'package:frontend/screens/service_for_carer/home_screen.dart' as carer;
+import 'package:frontend/screens/service_for_center/home_screen.dart' as center;
 
 enum LoginType { user, admin }
 
@@ -30,17 +32,18 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   Future<void> _onLoginPressed() async {
+    setState(() => _isLoading = true);
+
     final phone = _idController.text.trim();
     final password = _pwController.text;
     if (phone.isEmpty || password.isEmpty) {
       showMessageBanner(context, '아이디와 비밀번호를 모두 입력해주세요.');
+      setState(() => _isLoading = false);
       return;
     }
 
-    setState(() => _isLoading = true);
     try {
       final req = LoginRequest(phone: phone, password: password);
-
       final LoginResponse resp = await AuthService.instance.login(req);
 
       if (!mounted) return;
@@ -48,27 +51,32 @@ class _LoginScreenState extends State<LoginScreen> {
         // 1) 토큰 저장
         await SecureStorageService.writeToken(resp.result!.token);
 
-        // 2) 홈 화면으로 이동
-        if (widget.loginType == LoginType.user) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const me.HomeScreen(loginType: LoginType.user),
-            ),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) =>
-                  const carer.HomeScreen(loginType: LoginType.admin),
-            ),
-          );
+        // 2) role 에 따라 홈 화면으로 분기 이동
+        switch (resp.result!.role) {
+          case 'user':
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const me.MyHomeScreen()),
+            );
+            break;
+          case 'caregiver':
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const carer.CarerHomeScreen()),
+            );
+            break;
+          case 'staff':
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (_) => const center.CenterHomeScreen()),
+            );
+            break;
+          default:
+            showMessageBanner(context, '알 수 없는 역할입니다.');
         }
       } else {
         showMessageBanner(context, resp.message);
       }
-    } catch (e) {
+    } catch (_) {
+      if (!mounted) return;
       showMessageBanner(context, '서버에 연결할 수 없습니다.');
     } finally {
       if (mounted) setState(() => _isLoading = false);

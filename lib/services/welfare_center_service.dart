@@ -8,10 +8,7 @@ import 'package:frontend/services/api_client.dart';
 class WelfareCenterService {
   /// 전체 복지센터 조회
   Future<List<WelfareCenter>> fetchAll() async {
-    final resp = await ApiClient.instance.get(
-      '/member/welfare_centers',
-      headers: {'Content-Type': 'application/json'},
-    );
+    final resp = await ApiClient.instance.get('/member/welfare_centers');
     if (resp.statusCode != 200) {
       throw Exception('전체 복지센터 조회 실패(${resp.statusCode})');
     }
@@ -26,7 +23,6 @@ class WelfareCenterService {
   Future<List<WelfareCenter>> fetchBySido(String sido) async {
     final resp = await ApiClient.instance.get(
       '/member/welfare_centers/sido',
-      headers: {'Content-Type': 'application/json'},
       queryParameters: {'sido': sido},
     );
     if (resp.statusCode != 200) {
@@ -44,7 +40,6 @@ class WelfareCenterService {
       String sido, String sigungu) async {
     final resp = await ApiClient.instance.get(
       '/member/welfare_centers/sido-sigungu',
-      headers: {'Content-Type': 'application/json'},
       queryParameters: {
         'sido': sido,
         'sigungu': sigungu,
