@@ -1,21 +1,49 @@
+// lib/screens/service_for_carer/home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/login_screens/login_screen.dart';
-import 'package:frontend/models/care_target_list.dart';
+import 'package:frontend/models/care_target.dart';
+import 'package:frontend/services/care_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/filter_button.dart';
 import 'package:frontend/widgets/target_card.dart';
 
 class CarerHomeScreen extends StatefulWidget {
-  const CarerHomeScreen({super.key});
+  final int memberId;
+  const CarerHomeScreen({super.key, required this.memberId});
 
   @override
   _CarerHomeScreenState createState() => _CarerHomeScreenState();
 }
 
 class _CarerHomeScreenState extends State<CarerHomeScreen> {
+  List<CareTarget> _careTargets = [];
+  bool _isLoading = true;
+  String? _errorMessage;
   String _searchQuery = '';
   bool _filterDanger = false;
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTargets();
+  }
+
+  Future<void> _fetchTargets() async {
+    try {
+      final targets = await CareService.instance.fetchTargets(widget.memberId);
+      if (!mounted) return;
+      setState(() {
+        _careTargets = targets;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,31 +57,20 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
   }
 
   Widget _buildAdminView() {
-    const dummyAdminJson = {
-      'careTargets': [
-        {
-          'userId': 111,
-          'name': '김철수(남)',
-          'gender': 1,
-          'address': '서울시 강남구 강남대로 100번길 123',
-          'welfareCenter': 'OO복지센터',
-          'phoneNumber': '010-0000-0000',
-          'careStatus': 1,
-        },
-        {
-          'userId': 222,
-          'name': '박말순(여)',
-          'gender': 0,
-          'address': '서울시 강남구 강남대로 1번길 456',
-          'welfareCenter': 'OO복지센터',
-          'phoneNumber': '010-0000-0000',
-          'careStatus': 0,
-        },
-      ]
-    };
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_errorMessage != null) {
+      return Center(
+        child: Text(
+          _errorMessage!,
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
+    }
 
-    final all = CareTargetList.fromJson(dummyAdminJson).careTargets;
-    final filtered = all.where((t) {
+    // 검색 및 필터링 로직
+    final filtered = _careTargets.where((t) {
       final matchQuery = t.name.contains(_searchQuery);
       final matchDanger = !_filterDanger || t.isDanger;
       return matchQuery && matchDanger;
@@ -62,6 +79,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 검색 텍스트필드
         Padding(
           padding: const EdgeInsets.all(16),
           child: TextField(
@@ -80,6 +98,8 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
             onChanged: (v) => setState(() => _searchQuery = v),
           ),
         ),
+
+        // 위험군 필터 버튼
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FilterButton(
@@ -89,6 +109,8 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
             onTap: () => setState(() => _filterDanger = !_filterDanger),
           ),
         ),
+
+        // 대상자 수 텍스트
         Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
@@ -96,6 +118,8 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ),
+
+        // 대상자 카드 리스트
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
