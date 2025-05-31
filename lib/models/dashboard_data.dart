@@ -1,7 +1,6 @@
 // lib/models/dashboard_data.dart
 
 class DashboardData {
-  // 대상자 프로필 카드 모델 정의
   final int userId;
   final String name;
   final int gender;
@@ -30,7 +29,7 @@ class DashboardData {
       name: json['name'] as String,
       gender: json['gender'] as int,
       address: json['address'] as String,
-      welfareCenter: json['welfareCenter'] as String,
+      welfareCenter: json['welfareCenterName'] as String,
       phoneNumber: json['phoneNumber'] as String,
       guardianPhone: json['guardianPhone'] as String,
       underlyingConditions:

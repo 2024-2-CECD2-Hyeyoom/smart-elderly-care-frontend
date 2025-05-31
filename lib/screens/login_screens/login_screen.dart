@@ -9,7 +9,8 @@ import 'package:frontend/services/auth_service.dart';
 import 'package:frontend/services/secure_storage_service.dart';
 import 'package:frontend/models/login_request.dart';
 import 'package:frontend/models/login_response.dart';
-// 홈스크린을 별칭으로 import
+
+// 홈스크린을 별칭(import-as)으로 불러옵니다.
 import 'package:frontend/screens/service_for_me/home_screen.dart' as me;
 import 'package:frontend/screens/service_for_carer/home_screen.dart' as carer;
 import 'package:frontend/screens/service_for_center/home_screen.dart' as center;
@@ -28,56 +29,65 @@ class _LoginScreenState extends State<LoginScreen> {
   final _idController = TextEditingController();
   final _pwController = TextEditingController();
   final _autoLogin = ValueNotifier<bool>(false);
-
   bool _isLoading = false;
 
   Future<void> _onLoginPressed() async {
+    // BuildContext를 async gap에 안전하게 넘기기 위해 복사해 놓습니다.
+    final ctx = context;
     setState(() => _isLoading = true);
 
     final phone = _idController.text.trim();
     final password = _pwController.text;
     if (phone.isEmpty || password.isEmpty) {
-      showMessageBanner(context, '아이디와 비밀번호를 모두 입력해주세요.');
+      showMessageBanner(ctx, '아이디와 비밀번호를 모두 입력해주세요.');
       setState(() => _isLoading = false);
       return;
     }
 
     try {
       final req = LoginRequest(phone: phone, password: password);
-      final LoginResponse resp = await AuthService.instance.login(req);
+      final resp = await AuthService.instance.login(req);
 
       if (!mounted) return;
       if (resp.isSuccess && resp.result != null) {
-        // 1) 토큰 저장
+        // 1) 토큰 저장 (AuthService.login 내부에서도 이미 저장하지만, 혹시 모르니 재확인)
         await SecureStorageService.writeToken(resp.result!.token);
 
-        // 2) role 에 따라 홈 화면으로 분기 이동
-        switch (resp.result!.role) {
+        // 2) loginResponse에서 받은 memberId와 role로 분기
+        final role = resp.result!.role;
+        final userId = resp.result!.memberId;
+
+        switch (role) {
           case 'user':
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const me.MyHomeScreen()),
+            Navigator.of(ctx).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => me.MyHomeScreen(userId: userId),
+              ),
             );
             break;
           case 'caregiver':
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const carer.CarerHomeScreen()),
+            Navigator.of(ctx).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => carer.CarerHomeScreen(memberId: userId),
+              ),
             );
             break;
           case 'staff':
-            Navigator.of(context).pushReplacement(
+            Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
-                  builder: (_) => const center.CenterHomeScreen()),
+                builder: (_) => center.CenterHomeScreen(memberId: userId),
+              ),
             );
             break;
           default:
-            showMessageBanner(context, '알 수 없는 역할입니다.');
+            showMessageBanner(ctx, '알 수 없는 역할입니다.');
         }
       } else {
-        showMessageBanner(context, resp.message);
+        showMessageBanner(ctx, resp.message);
       }
     } catch (_) {
       if (!mounted) return;
-      showMessageBanner(context, '서버에 연결할 수 없습니다.');
+      showMessageBanner(ctx, '서버에 연결할 수 없습니다.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
