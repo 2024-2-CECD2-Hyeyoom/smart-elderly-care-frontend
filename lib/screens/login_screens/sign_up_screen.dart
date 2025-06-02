@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/screens/login_screens/login_screen.dart';
 import 'package:frontend/widgets/custom_pop_up.dart';
 import 'package:frontend/widgets/custom_snackbar.dart';
@@ -31,12 +32,15 @@ class _SignUpScreenState extends State<SignupScreen> {
   final yearController = TextEditingController();
   final monthController = TextEditingController();
   final dayController = TextEditingController();
+  final addressController = TextEditingController();
   final defaultCareCodeController = TextEditingController();
   List<TextEditingController> extraCareCodeControllers = [];
 
   late final LoginType loginType;
   final _signupService = SignupService();
   final _welfareService = WelfareCenterService();
+
+  final storage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -51,6 +55,7 @@ class _SignUpScreenState extends State<SignupScreen> {
         yearController.text.trim().isEmpty ||
         monthController.text.trim().isEmpty ||
         dayController.text.trim().isEmpty ||
+        addressController.text.trim().isEmpty ||
         welfareCenter == null ||
         welfareCenter!.isEmpty) {
       return true;
@@ -91,85 +96,92 @@ class _SignUpScreenState extends State<SignupScreen> {
       builder: (_) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
           title: const Text('기관 검색'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButton<String>(
-                value: selectedSido,
-                items: sidoList
-                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                    .toList(),
-                onChanged: (sido) async {
-                  if (sido == null) return;
-                  setState(() {
-                    selectedSido = sido;
-                    selectedSigungu = '전체';
-                    sigunguList = [];
-                  });
-                  if (sido == '전체') {
-                    filtered = all;
-                  } else {
-                    final list = await _welfareService.fetchBySido(sido);
-                    filtered = list;
-                    sigunguList = [
-                      '전체',
-                      ...{for (var c in list) c.sigungu}
-                    ];
-                  }
-                  setState(() {});
-                },
-              ),
-              if (selectedSido != '전체') ...[
-                const SizedBox(height: 8),
-                DropdownButton<String>(
-                  value: selectedSigungu,
-                  items: sigunguList
-                      .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                      .toList(),
-                  onChanged: (sigungu) async {
-                    if (sigungu == null) return;
-                    setState(() => selectedSigungu = sigungu);
-                    filtered = (sigungu == '전체')
-                        ? await _welfareService.fetchBySido(selectedSido)
-                        : await _welfareService.fetchBySidoSigungu(
+          content: SizedBox(
+            height: 400, // 또는 적절한 높이
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButton<String>(
+                    value: selectedSido,
+                    items: sidoList
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    onChanged: (sido) async {
+                      if (sido == null) return;
+                      setState(() {
+                        selectedSido = sido;
+                        selectedSigungu = '전체';
+                        sigunguList = [];
+                      });
+                      if (sido == '전체') {
+                        filtered = all;
+                      } else {
+                        final list = await _welfareService.fetchBySido(sido);
+                        filtered = list;
+                        sigunguList = [
+                          '전체',
+                          ...{for (var c in list) c.sigungu}
+                        ];
+                      }
+                      setState(() {});
+                    },
+                  ),
+                  if (selectedSido != '전체') ...[
+                    const SizedBox(height: 8),
+                    DropdownButton<String>(
+                      value: selectedSigungu,
+                      items: sigunguList
+                          .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                          .toList(),
+                      onChanged: (sigungu) async {
+                        if (sigungu == null) return;
+                        setState(() => selectedSigungu = sigungu);
+                        filtered = (sigungu == '전체')
+                            ? await _welfareService.fetchBySido(selectedSido)
+                            : await _welfareService.fetchBySidoSigungu(
                             selectedSido, sigungu);
-                    setState(() {});
-                  },
-                ),
-              ],
-              const SizedBox(height: 12),
-              TextField(
-                decoration: const InputDecoration(
-                    hintText: '기관명을 입력하세요', prefixIcon: Icon(Icons.search)),
-                onChanged: (q) => setState(() {
-                  filtered = filtered
-                      .where((c) => c.organName.contains(q.trim()))
-                      .toList();
-                }),
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  TextField(
+                    decoration: const InputDecoration(
+                        hintText: '기관명을 입력하세요',
+                        prefixIcon: Icon(Icons.search)),
+                    onChanged: (q) => setState(() {
+                      filtered = filtered
+                          .where((c) => c.organName.contains(q.trim()))
+                          .toList();
+                    }),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 200,
+                    child: filtered.isEmpty
+                        ? const Center(child: Text('검색 결과가 없습니다'))
+                        : ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) {
+                        final c = filtered[i];
+                        return ListTile(
+                          title: Text(c.organName),
+                          subtitle: Text('${c.sido} ${c.sigungu}'),
+                          onTap: () {
+                            setState(() {
+                              selectedInstitutionName = c.organName;
+                            });
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 200,
-                child: filtered.isEmpty
-                    ? const Center(child: Text('검색 결과가 없습니다'))
-                    : ListView.builder(
-                        itemCount: filtered.length,
-                        itemBuilder: (_, i) {
-                          final c = filtered[i];
-                          return ListTile(
-                            title: Text(c.organName),
-                            subtitle: Text('${c.sido} ${c.sigungu}'),
-                            onTap: () {
-                              setState(() {
-                                selectedInstitutionName = c.organName;
-                              });
-                              Navigator.pop(ctx);
-                            },
-                          );
-                        },
-                      ),
-              ),
-            ],
+            ),
           ),
           actions: [
             TextButton(
@@ -192,7 +204,8 @@ class _SignUpScreenState extends State<SignupScreen> {
     final name = nameController.text.trim();
     final phone = contactController.text.trim();
     final genderVal = gender == '남' ? 1 : 0;
-    final address = selectedInstitutionName;
+    final address = addressController.text.trim();
+    final welfareCenterName = selectedInstitutionName;
     final password = passwordController.text.trim();
 
     late UserSignupResponse resp;
@@ -203,7 +216,7 @@ class _SignUpScreenState extends State<SignupScreen> {
           phone: phone,
           gender: genderVal,
           address: address,
-          welfareCenterName: address,
+          welfareCenterName: welfareCenterName,
           password: password,
         );
         resp = await _signupService.signupStaff(req);
@@ -230,7 +243,7 @@ class _SignUpScreenState extends State<SignupScreen> {
           birthDate:
               '${yearController.text}-${monthController.text.padLeft(2, '0')}-${dayController.text.padLeft(2, '0')}',
           address: address,
-          welfareCenterName: address,
+          welfareCenterName: welfareCenterName,
           underlyingDiseases: extraCareCodeControllers
               .map((c) => c.text.trim())
               .where((s) => s.isNotEmpty)
@@ -252,7 +265,8 @@ class _SignUpScreenState extends State<SignupScreen> {
         context: context,
         builder: (_) => CustomDialog(
           content: '회원가입이 완료되었습니다.\n로그인 페이지로 돌아갑니다.',
-          onConfirm: () {
+          onConfirm: () async {
+            await storage.delete(key: 'accessToken');
             Navigator.of(context).pop(); // 다이얼로그 닫기
             Navigator.of(context).pop(); // 회원가입 화면 닫기
             // 로그인 화면으로 다시 이동하면서 loginType을 그대로 전달
@@ -339,6 +353,8 @@ class _SignUpScreenState extends State<SignupScreen> {
                   dayController: dayController,
                 ),
                 const SizedBox(height: 25),
+                _buildLabeledInput('집 주소', addressController),
+                const SizedBox(height: 12),
                 if (loginType == LoginType.user) ...[
                   const Text('관리(의료/복지) 기관 등록 여부:'),
                   Row(

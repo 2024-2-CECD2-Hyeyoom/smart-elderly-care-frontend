@@ -4,7 +4,7 @@ class CareTarget {
   final String name;
   final int gender;
   final String address;
-  final String welfareCenter;
+  final String welfareCenterName;
   final String phoneNumber;
   final int careStatus;
 
@@ -13,7 +13,7 @@ class CareTarget {
     required this.name,
     required this.gender,
     required this.address,
-    required this.welfareCenter,
+    required this.welfareCenterName,
     required this.phoneNumber,
     required this.careStatus,
   });
@@ -24,7 +24,7 @@ class CareTarget {
       name: json['name'] as String,
       gender: json['gender'] as int,
       address: json['address'] as String,
-      welfareCenter: json['welfareCenter'] as String,
+      welfareCenterName: json['welfareCenterName'] as String,
       phoneNumber: json['phoneNumber'] as String,
       careStatus: json['careStatus'] as int,
     );
