@@ -58,21 +58,21 @@ class _LoginScreenState extends State<LoginScreen> {
         final userId = resp.result!.memberId;
 
         switch (role) {
-          case 'user':
+          case 'USER':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
                 builder: (_) => me.MyHomeScreen(userId: userId),
               ),
             );
             break;
-          case 'caregiver':
+          case 'CAREGIVER':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
                 builder: (_) => carer.CarerHomeScreen(memberId: userId),
               ),
             );
             break;
-          case 'staff':
+          case 'STAFF':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
                 builder: (_) => center.CenterHomeScreen(memberId: userId),

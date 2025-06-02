@@ -129,7 +129,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
               return TargetCard(
                 name: t.name,
                 address: t.address,
-                center: t.welfareCenter,
+                center: t.welfareCenterName,
                 contact: t.phoneNumber,
                 isDanger: t.isDanger,
                 isAbsent: false,
