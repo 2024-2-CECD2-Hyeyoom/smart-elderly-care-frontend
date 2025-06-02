@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 // 상단바 하단바 레이아웃 위젯
+// lib/widgets/custom_layout.dart
 
 class CustomLayout extends StatelessWidget {
   final String title;

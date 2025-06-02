@@ -1,4 +1,5 @@
-/// 단일 돌봄 이력 모델
+// lib/models/care_history.dart
+
 class CareHistory {
   final int careHistoryId;
   final DateTime visitDate;
@@ -16,7 +17,7 @@ class CareHistory {
 
   factory CareHistory.fromJson(Map<String, dynamic> json) {
     return CareHistory(
-      careHistoryId: json['CareHistoryId'] as int,
+      careHistoryId: json['careHistoryId'] as int,
       visitDate: DateTime.parse(json['visitDate'] as String),
       purpose: json['purpose'] as String,
       content: json['content'] as String,

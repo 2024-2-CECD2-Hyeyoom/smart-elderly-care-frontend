@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/models/dashboard_data.dart';
-import 'package:frontend/services/profile_service.dart'; // ← ProfileService를 import
+import 'package:frontend/services/profile_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/user_summary_card.dart';
+import 'package:frontend/screens/service_for_me/care_history_screen.dart'; // ← 돌봄 이력 화면 import
 
 class MyHomeScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -15,13 +16,12 @@ class MyHomeScreen extends StatefulWidget {
 }
 
 class _MyHomeScreenState extends State<MyHomeScreen> {
-  // ProfileService를 singleton 방식으로 사용합니다.
   final ProfileService _profileService = ProfileService.instance;
 
   DashboardData? _dashboardData;
   bool _isLoading = true;
   String? _errorMessage;
-  int _currentIndex = 0;
+  int _currentIndex = 0; // 하단바에서 현재 선택된 인덱스 (0부터 시작)
 
   @override
   void initState() {
@@ -31,7 +31,6 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
 
   Future<void> _fetchProfile() async {
     try {
-      // ProfileService.fetchProfile을 호출해서 데이터를 받아옵니다.
       final data = await _profileService.fetchProfile(widget.userId);
       if (!mounted) return;
       setState(() {
@@ -47,22 +46,43 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     }
   }
 
+  /// 하단바 아이콘 클릭 처리 함수
+  void _onTapNavBar(int idx) {
+    // idx == 0: Home 아이콘 클릭
+    if (idx == 0) {
+      // 이미 Home 화면이므로, 단순히 인덱스만 변경
+      setState(() => _currentIndex = 0);
+      return;
+    }
+
+    // idx == 2: pan_tool_alt 아이콘 클릭 → Care History 화면으로 이동
+    if (idx == 2) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyCareHistoryScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
+
+    // 그 외 인덱스(1, 3)는 여기서 특별 처리하지 않으므로, 인덱스만 변경
+    setState(() => _currentIndex = idx);
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLayout(
-      title: '모니터링', // AppBar 타이틀
-      showLogoutButton: true, // 로그아웃 버튼 보이기
-      currentIndex: _currentIndex, // 하단 바 선택 index
-      onTap: (i) => setState(() => _currentIndex = i),
-      body: _buildBody(), // CustomLayout의 body 부분
+      title: '모니터링',
+      showLogoutButton: true,
+      currentIndex: _currentIndex,
+      onTap: _onTapNavBar, // ← 하단바 클릭 시 호출될 콜백
+      body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_errorMessage != null) {
