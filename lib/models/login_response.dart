@@ -25,11 +25,13 @@ class _Result {
   final int memberId;
   final String role;
   final String token;
+  final String name;
 
   _Result({
     required this.memberId,
     required this.role,
     required this.token,
+    required this.name,
   });
 
   factory _Result.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class _Result {
       memberId: json['memberId'] as int,
       role: json['role'] as String,
       token: json['token'] as String,
+      name: json['name'] as String,
     );
   }
 }

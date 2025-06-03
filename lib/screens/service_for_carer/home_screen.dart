@@ -1,14 +1,22 @@
 // lib/screens/service_for_carer/home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:frontend/models/care_target.dart';
 import 'package:frontend/services/care_service.dart';
+import 'package:frontend/screens/service_for_carer/care_manage_screen.dart'; // ← 돌봄 관리 화면 import
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/filter_button.dart';
 import 'package:frontend/widgets/target_card.dart';
 
 class CarerHomeScreen extends StatefulWidget {
   final int memberId;
-  const CarerHomeScreen({super.key, required this.memberId});
+  final String counselorName;
+
+  const CarerHomeScreen({
+    super.key,
+    required this.memberId,
+    required this.counselorName,
+  });
 
   @override
   _CarerHomeScreenState createState() => _CarerHomeScreenState();
@@ -20,7 +28,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
   String? _errorMessage;
   String _searchQuery = '';
   bool _filterDanger = false;
-  int _currentIndex = 0;
+  int _currentIndex = 0; // 하단바에서 현재 선택된 인덱스
 
   @override
   void initState() {
@@ -45,13 +53,38 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
     }
   }
 
+  /// 하단바 아이콘 클릭 처리
+  void _onTapNavBar(int idx) {
+    // 0번(🏠) 클릭 → 이미 이 화면이므로 인덱스만 바꿔주고 리턴
+    if (idx == 0) {
+      setState(() => _currentIndex = 0);
+      return;
+    }
+
+    // 2번(🤚) 클릭 → 돌봄 관리 화면(CareManageScreen)으로 대체(pushReplacement)
+    if (idx == 2) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CareManageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // 나머지(1, 3) 클릭 시에는 그냥 인덱스만 바꿉니다.
+    setState(() => _currentIndex = idx);
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLayout(
       title: '관리 대상자',
       showLogoutButton: true,
       currentIndex: _currentIndex,
-      onTap: (i) => setState(() => _currentIndex = i),
+      onTap: _onTapNavBar, // ← 기존의 setState 콜백을 이 함수로 교체
       body: _buildAdminView(),
     );
   }
@@ -69,7 +102,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
       );
     }
 
-    // 검색 및 필터링 로직
+    // 검색어 + 필터링
     final filtered = _careTargets.where((t) {
       final matchQuery = t.name.contains(_searchQuery);
       final matchDanger = !_filterDanger || t.isDanger;
@@ -79,7 +112,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 검색 텍스트필드
+        // ───────────── 1) 검색창 ─────────────
         Padding(
           padding: const EdgeInsets.all(16),
           child: TextField(
@@ -92,14 +125,15 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
                       icon: const Icon(Icons.clear),
                       onPressed: () => setState(() => _searchQuery = ''),
                     ),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onChanged: (v) => setState(() => _searchQuery = v),
           ),
         ),
 
-        // 위험군 필터 버튼
+        // ───────────── 2) 위험군 필터 버튼 ─────────────
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: FilterButton(
@@ -110,7 +144,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
           ),
         ),
 
-        // 대상자 수 텍스트
+        // ───────────── 3) 대상자 수 텍스트 ─────────────
         Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
@@ -119,7 +153,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
           ),
         ),
 
-        // 대상자 카드 리스트
+        // ───────────── 4) 대상자 카드 리스트 ─────────────
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),

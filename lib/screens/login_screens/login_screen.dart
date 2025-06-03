@@ -56,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // 2) loginResponse에서 받은 memberId와 role로 분기
         final role = resp.result!.role;
         final userId = resp.result!.memberId;
+        final counselorName = resp.result!.name;
 
         switch (role) {
           case 'USER':
@@ -68,14 +69,20 @@ class _LoginScreenState extends State<LoginScreen> {
           case 'CAREGIVER':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => carer.CarerHomeScreen(memberId: userId),
+                builder: (_) => carer.CarerHomeScreen(
+                  memberId: userId,
+                  counselorName: counselorName,
+                ),
               ),
             );
             break;
           case 'STAFF':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => center.CenterHomeScreen(memberId: userId),
+                builder: (_) => center.CenterHomeScreen(
+                  memberId: userId,
+                  counselorName: counselorName,
+                ),
               ),
             );
             break;
