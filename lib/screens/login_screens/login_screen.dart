@@ -56,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // 2) loginResponse에서 받은 memberId와 role로 분기
         final role = resp.result!.role;
         final userId = resp.result!.memberId;
+        final counselorName = resp.result!.name;
 
         switch (role) {
           case 'USER':
@@ -68,14 +69,20 @@ class _LoginScreenState extends State<LoginScreen> {
           case 'CAREGIVER':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => carer.CarerHomeScreen(memberId: userId),
+                builder: (_) => carer.CarerHomeScreen(
+                  memberId: userId,
+                  counselorName: counselorName,
+                ),
               ),
             );
             break;
           case 'STAFF':
             Navigator.of(ctx).pushReplacement(
               MaterialPageRoute(
-                builder: (_) => center.CenterHomeScreen(memberId: userId),
+                builder: (_) => center.CenterHomeScreen(
+                  memberId: userId,
+                  counselorName: counselorName,
+                ),
               ),
             );
             break;
@@ -117,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
                 const Text('로그인',
                     style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 const Text('아이디, 비밀번호를 입력해주세요',
                     style: TextStyle(color: Colors.grey)),
@@ -205,8 +212,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text('로그인',
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
+                        style:
+                        TextStyle(fontSize: 18, color: Colors.white)),
                   ),
                 ),
               ],
