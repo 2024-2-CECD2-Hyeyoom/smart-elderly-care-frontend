@@ -169,9 +169,9 @@ class _CareManageScreenState extends State<CareManageScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: ElevatedButton.icon(
-            onPressed: () {
+            onPressed: () async {
               // “돌봄 이력 추가” 화면으로 이동
-              Navigator.of(context).push(
+              await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => AddCareHistoryScreen(
                     memberId: widget.memberId,
@@ -179,6 +179,12 @@ class _CareManageScreenState extends State<CareManageScreen> {
                   ),
                 ),
               );
+              // '돌봄 이력 추가' 화면에서 돌아온 직 후 목록을 다시 불러옴
+              setState(() {
+                _isLoading = true;
+                _errorMessage = null;
+              });
+              await _fetchHistories();
             },
             icon: const Icon(Icons.add),
             label: const Text('돌봄 이력 추가'),
