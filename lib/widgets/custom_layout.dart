@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
-
-// 상단바 하단바 레이아웃 위젯
 // lib/widgets/custom_layout.dart
 
+import 'package:flutter/material.dart';
+import 'package:frontend/services/secure_storage_service.dart';
+import 'package:frontend/screens/start_screen.dart';
+
+/// 상단바·하단바 레이아웃 위젯
 class CustomLayout extends StatelessWidget {
   final String title;
   final Widget body;
@@ -28,24 +30,34 @@ class CustomLayout extends StatelessWidget {
         shadowColor: Colors.black,
         elevation: 1,
         centerTitle: true,
-        title: Text(title,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            )),
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         actions: [
           if (showLogoutButton)
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: TextButton(
-                onPressed: () {
-                  // TODO: 로그아웃 로직
+                onPressed: () async {
+                  // 1) Secure Storage에서 토큰 삭제
+                  await SecureStorageService.deleteToken();
+
+                  // 2) 로그인(또는 시작) 화면으로 돌아가기
+                  //    기존에 쌓여 있던 라우트 스택을 모두 제거합니다.
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const StartScreen()),
+                    (route) => false,
+                  );
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: const Color.fromARGB(255, 48, 81, 120),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(50, 40), // 크기 조절
+                  minimumSize: const Size(50, 40),
                 ),
                 child: const Text(
                   "로그아웃",
