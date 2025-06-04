@@ -46,9 +46,12 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
       if (!mounted) return;
       setState(() {
         _targets = names;
+        if (_targets.isNotEmpty) {
+          _selectedTarget = _targets.first;
+        }
       });
     } catch (e) {
-      // 에러 처리 (스낵바 등)
+      // 에러 처리
     }
   }
 
@@ -93,7 +96,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
     }
     if (idx == 1) {
       // 이미 분석 관리 화면이므로 인덱스만 변경
-      setState(() => _currentIndex = 2);
+      setState(() => _currentIndex = 1);
       return;
     }
     if (idx == 2) {
