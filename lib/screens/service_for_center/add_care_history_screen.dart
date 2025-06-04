@@ -7,6 +7,7 @@ import 'package:frontend/services/target_service.dart';
 import 'package:frontend/services/target_history_service.dart';
 import 'package:frontend/screens/service_for_center/home_screen.dart';
 import 'package:frontend/widgets/custom_layout.dart';
+import 'package:frontend/screens/service_for_center/analysis_screen.dart';
 
 class AddCareHistoryScreen extends StatefulWidget {
   final int memberId; // 로그인 후 전달받은 관리자(상담자) ID
@@ -136,12 +137,24 @@ class _AddCareHistoryScreenState extends State<AddCareHistoryScreen> {
       );
       return;
     }
+    if (idx == 1) {
+      // 분석 화면으로 돌아간다
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterAnalysisScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
     // idx == 2: 이미 이 화면이므로 인덱스만 유지
     if (idx == 2) {
       setState(() => _currentIndex = 2);
       return;
     }
-    // 그 외 idx (1,3) 인덱스만 변경
+    // 그 외 idx (3) 인덱스만 변경
     setState(() => _currentIndex = idx);
   }
 

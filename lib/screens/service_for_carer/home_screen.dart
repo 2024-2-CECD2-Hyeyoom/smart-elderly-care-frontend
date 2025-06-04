@@ -7,6 +7,7 @@ import 'package:frontend/screens/service_for_carer/care_manage_screen.dart'; // 
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/filter_button.dart';
 import 'package:frontend/widgets/target_card.dart';
+import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
 
 class CarerHomeScreen extends StatefulWidget {
   final int memberId;
@@ -60,7 +61,18 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
       setState(() => _currentIndex = 0);
       return;
     }
-
+    if (idx == 1) {
+      // 분석 화면으로 돌아간다
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerAnalysisScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
     // 2번(🤚) 클릭 → 돌봄 관리 화면(CareManageScreen)으로 대체(pushReplacement)
     if (idx == 2) {
       Navigator.of(context).pushReplacement(
