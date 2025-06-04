@@ -16,8 +16,6 @@ class WeekRange {
       to: json['to'] as String,
     );
   }
-
-  /// 필요하다면 DateTime 으로 변환 할 수 있음
   DateTime fromDate() => DateTime.parse(from);
   DateTime toDate() => DateTime.parse(to);
 }

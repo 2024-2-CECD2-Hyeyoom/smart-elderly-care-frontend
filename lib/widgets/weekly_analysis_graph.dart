@@ -1,5 +1,3 @@
-// lib/widgets/weekly_analysis_graph.dart
-
 import 'package:flutter/material.dart';
 import 'package:frontend/models/weekly_analysis.dart';
 import 'package:frontend/services/analysis_service.dart';
@@ -7,7 +5,7 @@ import 'package:intl/intl.dart';
 
 class WeeklyAnalysisChart extends StatelessWidget {
   final int userId;
-  final DateTime selectedDate;
+  final DateTime selectedDate; // to 날짜
 
   const WeeklyAnalysisChart({
     super.key,
@@ -28,6 +26,15 @@ class WeeklyAnalysisChart extends StatelessWidget {
     );
   }
 
+  /// 서버가 준 기간(period.currentWeek)을 기준으로 "일"을 문자열 ["1", "2", ...] 꼴로 뽑아주는 헬퍼
+  List<String> _generateDaysFromPeriod(DateTime from, DateTime to) {
+    final days = <String>[];
+    for (var dt = from; !dt.isAfter(to); dt = dt.add(const Duration(days: 1))) {
+      days.add(DateFormat('d').format(dt));
+    }
+    return days;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<WeeklyAnalysis>(
@@ -42,26 +49,51 @@ class WeeklyAnalysisChart extends StatelessWidget {
         }
         if (snapshot.hasError || !snapshot.hasData) {
           return Center(
-            child: Text('데이터를 불러올 수 없습니다.\n${snapshot.error}',
-                textAlign: TextAlign.center),
+            child: Text(
+              '데이터를 불러올 수 없습니다.\n${snapshot.error}',
+              textAlign: TextAlign.center,
+            ),
           );
         }
 
         final data = snapshot.data!;
-        // data.labels: ["수면", "온도", "습도", "외출 횟수", "실내 활동량"]
-        // data.dataCurrent: 이번 주 값 e.g. [7.5, 25.7, 20.0, 7.2, 120.5]
-        // data.dataPrevious: 지난주 값 e.g. [6.3, 26.2, 24.0, 6.8, 104.1]
+        // 서버가 준 이번 주 범위(from~to)를 DateTime으로 꺼냅니다.
+        final fromDt = data.period.currentWeek.fromDate();
+        final toDt = data.period.currentWeek.toDate();
+
+        // 실제 레이블(“1”, “2”, … “7” 등)을 fromDt~toDt로 생성
+        final displayDays = _generateDaysFromPeriod(fromDt, toDt);
 
         return Column(
           children: [
             const SizedBox(height: 5),
+            // 라벨 수만큼 막대 그래프를 그리는데, 레이블은 displayDays를 통해 찍습니다.
             ...List.generate(data.labels.length, (index) {
-              return _buildBarGroup(
-                label: data.labels[index],
-                lastWeekValue: data.dataPrevious[index],
-                thisWeekValue: data.dataCurrent[index],
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(data.labels[index],
+                        style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        // 지난주, 이번주 막대를 _buildBarGroup을 통해 그립니다.
+                        _buildBarGroup(
+                          label: data.labels[index],
+                          lastWeekValue: data.dataPrevious[index],
+                          thisWeekValue: data.dataCurrent[index],
+                          maxWidth: MediaQuery.of(context).size.width * 0.9,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               );
             }),
+            // (아래에 ‘지난주: xx, 이번주: yy’ 등의 요약용 텍스트를 추가해도 좋습니다.)
           ],
         );
       },
@@ -72,9 +104,9 @@ class WeeklyAnalysisChart extends StatelessWidget {
     required String label,
     required double lastWeekValue,
     required double thisWeekValue,
+    required double maxWidth,
   }) {
     double maxValue;
-    // 레이블에 따라 적절한 최대값을 설정
     if (label.contains('수면')) {
       maxValue = 16.0;
     } else if (label.contains('외출')) {
@@ -82,58 +114,52 @@ class WeeklyAnalysisChart extends StatelessWidget {
     } else if (label.contains('실내')) {
       maxValue = 4000.0;
     } else if (label.contains('온도') || label.contains('습도')) {
-      maxValue = 50.0; // 온도/습도 단위가 0~50 정도라고 가정
+      maxValue = 50.0;
     } else {
       maxValue = 100.0;
     }
 
-    // 화면 너비의 90%를 기준으로 막대 너비 계산
-    final maxWidth =
-        MediaQueryData.fromView(WidgetsBinding.instance.window).size.width *
-            0.9;
+    // 막대 생성
+    final lastRatio = (lastWeekValue / maxValue).clamp(0.0, 1.0);
+    final thisRatio = (thisWeekValue / maxValue).clamp(0.0, 1.0);
+    final lastWidth = lastRatio * maxWidth;
+    final thisWidth = thisRatio * maxWidth;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 16)),
-          const SizedBox(height: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildBar(lastWeekValue, maxValue, Colors.orange, maxWidth),
-              const SizedBox(height: 3),
-              _buildBar(thisWeekValue, maxValue, Colors.deepPurple, maxWidth),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 13,
+          width: lastWidth,
+          decoration: const BoxDecoration(
+            color: Colors.orange,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            ),
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Text('지난주: ${lastWeekValue.toStringAsFixed(1)}'),
-              const SizedBox(width: 16),
-              Text('이번주: ${thisWeekValue.toStringAsFixed(1)}'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBar(
-      double value, double max, Color color, double totalMaxWidth) {
-    final ratio = (value / max).clamp(0.0, 1.0);
-    final width = (ratio * totalMaxWidth).toDouble();
-    return Container(
-      height: 13,
-      width: width,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(10),
-          bottomRight: Radius.circular(10),
         ),
-      ),
+        const SizedBox(height: 3),
+        Container(
+          height: 13,
+          width: thisWidth,
+          decoration: const BoxDecoration(
+            color: Colors.deepPurple,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Text('지난주: ${lastWeekValue.toStringAsFixed(1)}'),
+            const SizedBox(width: 16),
+            Text('이번주: ${thisWeekValue.toStringAsFixed(1)}'),
+          ],
+        ),
+      ],
     );
   }
 }
