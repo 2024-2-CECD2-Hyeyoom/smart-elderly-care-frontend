@@ -1,5 +1,3 @@
-// lib/widgets/sleep_analysis_graph.dart
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +7,7 @@ import 'package:frontend/services/analysis_service.dart';
 /// 수면 분석 레포트 위젯
 class SleepAnalysisGraph extends StatelessWidget {
   final int userId;
-  final DateTime selectedDate;
+  final DateTime selectedDate; // to 날짜
 
   const SleepAnalysisGraph({
     super.key,
@@ -29,11 +27,13 @@ class SleepAnalysisGraph extends StatelessWidget {
     );
   }
 
-  List<String> _generateDays(DateTime date) {
-    return List.generate(7, (i) {
-      final d = date.subtract(Duration(days: 6 - i));
-      return DateFormat('d').format(d);
-    });
+  /// 서버가 준 이번 주 범위를 DateTime으로 받아와서 7일치 날짜 리스트(“1”, “2”, …)로 변환
+  List<String> _generateDaysFromPeriod(DateTime from, DateTime to) {
+    final days = <String>[];
+    for (var dt = from; !dt.isAfter(to); dt = dt.add(const Duration(days: 1))) {
+      days.add(DateFormat('d').format(dt));
+    }
+    return days;
   }
 
   @override
@@ -58,10 +58,14 @@ class SleepAnalysisGraph extends StatelessWidget {
         }
 
         final data = snapshot.data!;
-        final days = _generateDays(selectedDate);
+        // 서버가 준 이번 주 범위를 DateTime으로 꺼냅니다.
+        final fromDt = data.period.currentWeek.fromDate();
+        final toDt = data.period.currentWeek.toDate();
 
-        // “하루 총 수면 시간”을 계산하려면, sleepStartTime/ sleepEndTime 문자열을 DateTime.parse해서
-        // 차이를 구해야 합니다.
+        // 실제 레이블(“1”, “2”, … “7”) 생성
+        final displayDays = _generateDaysFromPeriod(fromDt, toDt);
+
+        // 하루 총 수면 시간(“sleepStartTime” ~ “sleepEndTime”)을 계산
         String dailyTotalSleep() {
           if (data.sleepStartTime == null || data.sleepEndTime == null) {
             return '-';
@@ -86,16 +90,19 @@ class SleepAnalysisGraph extends StatelessWidget {
               _buildRow(Icons.wb_sunny, '기상시각 : ${data.sleepEndTime ?? '-'}'),
               const SizedBox(height: 8),
 
-              // 2) “평균 수면 시간” ⇐ API가 준 averageCurrent (ex: 7.2 시간)
-              _buildRow(Icons.access_time,
-                  '평균 수면 시간 : ${data.averageCurrent.toStringAsFixed(1)}시간'),
+              // 2) “평균 수면 시간” (API가 준 averageCurrent)
+              _buildRow(
+                Icons.access_time,
+                '평균 수면 시간 : ${data.averageCurrent.toStringAsFixed(1)}시간',
+              ),
 
               const SizedBox(height: 15),
-
               const Padding(
                 padding: EdgeInsets.only(bottom: 13),
-                child: Text('일별 수면 시간 (단위: 시간)',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(
+                  '일별 수면 시간 (단위: 시간)',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
 
               // 3) BarChart: data.dataCurrent (List<double>)
@@ -119,6 +126,7 @@ class SleepAnalysisGraph extends StatelessWidget {
                         },
                       ),
                     ),
+                    // 막대 데이터
                     barGroups: _buildBarGroups(data.dataCurrent),
                     maxY: data.dataCurrent.isNotEmpty
                         ? (data.dataCurrent.reduce((a, b) => a > b ? a : b) + 2)
@@ -140,8 +148,10 @@ class SleepAnalysisGraph extends StatelessWidget {
                           interval: 2,
                           getTitlesWidget: (value, _) {
                             if (value % 2 == 0) {
-                              return Text('${value.toInt()}',
-                                  style: const TextStyle(fontSize: 10));
+                              return Text(
+                                '${value.toInt()}',
+                                style: const TextStyle(fontSize: 10),
+                              );
                             }
                             return const SizedBox.shrink();
                           },
@@ -152,18 +162,22 @@ class SleepAnalysisGraph extends StatelessWidget {
                           showTitles: true,
                           getTitlesWidget: (value, _) {
                             final idx = value.toInt();
-                            if (idx >= 0 && idx < days.length) {
-                              return Text(days[idx],
-                                  style: const TextStyle(fontSize: 10));
+                            if (idx >= 0 && idx < displayDays.length) {
+                              return Text(
+                                displayDays[idx],
+                                style: const TextStyle(fontSize: 10),
+                              );
                             }
                             return const SizedBox.shrink();
                           },
                         ),
                       ),
                       topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                     ),
                     borderData: FlBorderData(show: false),
                     extraLinesData: ExtraLinesData(

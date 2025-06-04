@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'secure_storage_service.dart';
 
 class ApiClient {
-  static const _baseUrl = 'http://localhost:8080';
+  static const _baseUrl = 'http://10.0.2.2:8080';
   final http.Client _inner = http.Client();
   ApiClient._();
   static final instance = ApiClient._();

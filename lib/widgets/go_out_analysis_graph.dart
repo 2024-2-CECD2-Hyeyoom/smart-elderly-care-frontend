@@ -1,5 +1,3 @@
-// lib/widgets/go_out_analysis_graph.dart
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +7,7 @@ import 'package:frontend/services/analysis_service.dart';
 /// 외출 분석 레포트 위젯
 class GoOutAnalysisGraph extends StatelessWidget {
   final int userId;
-  final DateTime selectedDate;
+  final DateTime selectedDate; // to 날짜
 
   const GoOutAnalysisGraph({
     super.key,
@@ -17,11 +15,8 @@ class GoOutAnalysisGraph extends StatelessWidget {
     required this.selectedDate,
   });
 
-  /// API 호출: 서버에서 외출 분석 데이터를 받아옵니다.
   Future<OutingAnalysis> _fetchOutingAnalysis() async {
     final toStr = DateFormat('yyyy-MM-dd').format(selectedDate);
-    // from 을 선택하지 않았을 때는 “서버가 알아서 to 기준으로 7일 전부터 지난주까지”를 처리해 주지만,
-    // 여기서는 명시적으로 7일 전부터 조회하기로 예시를 들었습니다.
     final fromDate = selectedDate.subtract(const Duration(days: 6));
     final fromStr = DateFormat('yyyy-MM-dd').format(fromDate);
 
@@ -32,12 +27,13 @@ class GoOutAnalysisGraph extends StatelessWidget {
     );
   }
 
-  /// x축 레이블(날짜) 생성: “1, 2, 3, …, 7” 꼴로 반환
-  List<String> _generateDays(DateTime date) {
-    return List.generate(7, (i) {
-      final d = date.subtract(Duration(days: 6 - i));
-      return DateFormat('d').format(d);
-    });
+  /// 서버가 준 이번 주 범위를 DateTime으로 받아와서 7일치 날짜 리스트(“1”, “2”, …)로 변환
+  List<String> _generateDaysFromPeriod(DateTime from, DateTime to) {
+    final days = <String>[];
+    for (var dt = from; !dt.isAfter(to); dt = dt.add(const Duration(days: 1))) {
+      days.add(DateFormat('d').format(dt));
+    }
+    return days;
   }
 
   @override
@@ -62,17 +58,17 @@ class GoOutAnalysisGraph extends StatelessWidget {
         }
 
         final data = snapshot.data!;
-        // “selectedDate”를 기준으로 7일치 레이블 생성
-        final displayDays = _generateDays(selectedDate);
+        // 서버가 준 기간을 DateTime으로 꺼냅니다.
+        final fromDt = data.period.currentWeek.fromDate();
+        final toDt = data.period.currentWeek.toDate();
 
-        // “선택 날짜(=selectedDate)에 해당하는 하루 외출 횟수”를 가져오려면
-        // data.labels 과 data.dataCurrent 의 순서가 동일하다고 가정할 때, selectedDate가
-        // 항상 data.period.currentWeek.to ~ from 범위 안에 있다고 보면,
-        // data.dataCurrent 의 마지막 인덱스(6)가 오늘의 외출 횟수입니다.
+        // 실제 레이블(“1”, “2”, …, “7”) 생성
+        final displayDays = _generateDaysFromPeriod(fromDt, toDt);
+
+        // “오늘” 외출 횟수는 data.dataCurrent.last(마지막 인덱스)라고 가정
         final todayCount =
             data.dataCurrent.isNotEmpty ? data.dataCurrent.last : 0;
-
-        // “이번 주 평균 외출 횟수”를 보여 주려면
+        // 평균 외출 횟수
         final averageCount = data.averageCurrent;
 
         return Padding(
@@ -80,19 +76,14 @@ class GoOutAnalysisGraph extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1) 오늘 하루(선택일)의 외출 횟수
               _buildRow(Icons.door_back_door, '외출 횟수 : $todayCount 회'),
-
               const SizedBox(height: 8),
-
-              // 2) 선택 날짜의 총 외출 시간 (server가 보내준 분 단위)
               _buildRow(
                 Icons.access_time,
                 '총 외출 시간 : ${data.outingDurationMinutes ?? 0} 분',
               ),
 
               const SizedBox(height: 15),
-
               const Padding(
                 padding: EdgeInsets.only(bottom: 13),
                 child: Text(
@@ -101,7 +92,7 @@ class GoOutAnalysisGraph extends StatelessWidget {
                 ),
               ),
 
-              // 3) BarChart (7일치 막대 그래프)
+              // BarChart: data.dataCurrent (List<int>)
               SizedBox(
                 height: 250,
                 child: BarChart(
