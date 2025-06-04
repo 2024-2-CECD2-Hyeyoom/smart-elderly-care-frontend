@@ -93,7 +93,7 @@ class _CarerAnalysisScreenState extends State<CarerAnalysisScreen> {
     }
     if (idx == 1) {
       // 이미 분석 관리 화면이므로 인덱스만 변경
-      setState(() => _currentIndex = 2);
+      setState(() => _currentIndex = 1);
       return;
     }
     if (idx == 2) {
