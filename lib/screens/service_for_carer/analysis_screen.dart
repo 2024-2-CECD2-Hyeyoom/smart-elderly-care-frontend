@@ -46,9 +46,12 @@ class _CarerAnalysisScreenState extends State<CarerAnalysisScreen> {
       if (!mounted) return;
       setState(() {
         _targets = names;
+        if (_targets.isNotEmpty) {
+          _selectedTarget = _targets.first;
+        }
       });
     } catch (e) {
-      // 에러 처리 (스낵바 등)
+      // 에러 처리
     }
   }
 
