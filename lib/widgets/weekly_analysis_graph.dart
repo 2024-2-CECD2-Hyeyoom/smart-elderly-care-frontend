@@ -1,103 +1,118 @@
+// lib/widgets/weekly_analysis_graph.dart
+
 import 'package:flutter/material.dart';
-import 'package:frontend/models/weekly_analysis_data.dart';
+import 'package:frontend/models/weekly_analysis.dart';
+import 'package:frontend/services/analysis_service.dart';
+import 'package:intl/intl.dart';
 
 class WeeklyAnalysisChart extends StatelessWidget {
-  final double maxWidth = 300;
+  final int userId;
   final DateTime selectedDate;
 
-  const WeeklyAnalysisChart({super.key, required this.selectedDate});
+  const WeeklyAnalysisChart({
+    super.key,
+    required this.userId,
+    required this.selectedDate,
+  });
 
-  Future<List<WeeklyAnalysisData>> fetchWeeklyAnalysisData(
-      DateTime date) async {
-    // TODO: 서버 연동 시 여기를 수정하여 API 호출
-    await Future.delayed(const Duration(milliseconds: 300)); // 네트워크 지연 시뮬레이션
+  /// API 호출: 주간 분석 데이터 가져오기
+  Future<WeeklyAnalysis> _fetchWeeklyData() async {
+    final toStr = DateFormat('yyyy-MM-dd').format(selectedDate);
+    final fromDate = selectedDate.subtract(const Duration(days: 6));
+    final fromStr = DateFormat('yyyy-MM-dd').format(fromDate);
 
-    return [
-      WeeklyAnalysisData(
-        label: '하루 평균 수면 시간',
-        displayLastWeekValue: '6시간 30분',
-        displayThisWeekValue: '5시간 48분',
-        lastWeekValue: 6.5,
-        thisWeekValue: 5.8,
-      ),
-      WeeklyAnalysisData(
-        label: '하루 평균 외출 횟수',
-        displayLastWeekValue: '1.2회',
-        displayThisWeekValue: '2.0회',
-        lastWeekValue: 1.2,
-        thisWeekValue: 2.0,
-      ),
-      WeeklyAnalysisData(
-        label: '하루 평균 실내 활동량',
-        displayLastWeekValue: '2500',
-        displayThisWeekValue: '2000',
-        lastWeekValue: 2500.0,
-        thisWeekValue: 2000.0,
-      ),
-    ];
+    return await AnalysisService.instance.fetchWeeklyAnalysis(
+      userId: userId,
+      to: toStr,
+      from: fromStr,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<WeeklyAnalysisData>>(
-      future: fetchWeeklyAnalysisData(selectedDate),
+    return FutureBuilder<WeeklyAnalysis>(
+      future: _fetchWeeklyData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-              child: CircularProgressIndicator(
-            color: Color.fromARGB(255, 48, 81, 120),
-          ));
+            child: CircularProgressIndicator(
+              color: Color.fromARGB(255, 48, 81, 120),
+            ),
+          );
         }
-
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('데이터를 불러올 수 없습니다.'));
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Center(
+            child: Text('데이터를 불러올 수 없습니다.\n${snapshot.error}',
+                textAlign: TextAlign.center),
+          );
         }
 
         final data = snapshot.data!;
+        // data.labels: ["수면", "온도", "습도", "외출 횟수", "실내 활동량"]
+        // data.dataCurrent: 이번 주 값 e.g. [7.5, 25.7, 20.0, 7.2, 120.5]
+        // data.dataPrevious: 지난주 값 e.g. [6.3, 26.2, 24.0, 6.8, 104.1]
 
         return Column(
           children: [
             const SizedBox(height: 5),
-            ...data.map((entry) => _buildBarGroup(entry)),
+            ...List.generate(data.labels.length, (index) {
+              return _buildBarGroup(
+                label: data.labels[index],
+                lastWeekValue: data.dataPrevious[index],
+                thisWeekValue: data.dataCurrent[index],
+              );
+            }),
           ],
         );
       },
     );
   }
 
-  Widget _buildBarGroup(WeeklyAnalysisData entry) {
+  Widget _buildBarGroup({
+    required String label,
+    required double lastWeekValue,
+    required double thisWeekValue,
+  }) {
     double maxValue;
-    if (entry.label.contains('수면')) {
+    // 레이블에 따라 적절한 최대값을 설정
+    if (label.contains('수면')) {
       maxValue = 16.0;
-    } else if (entry.label.contains('외출')) {
+    } else if (label.contains('외출')) {
       maxValue = 15.0;
-    } else if (entry.label.contains('실내')) {
+    } else if (label.contains('실내')) {
       maxValue = 4000.0;
+    } else if (label.contains('온도') || label.contains('습도')) {
+      maxValue = 50.0; // 온도/습도 단위가 0~50 정도라고 가정
     } else {
-      maxValue = 100.0; // fallback value
+      maxValue = 100.0;
     }
+
+    // 화면 너비의 90%를 기준으로 막대 너비 계산
+    final maxWidth =
+        MediaQueryData.fromView(WidgetsBinding.instance.window).size.width *
+            0.9;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(entry.label, style: const TextStyle(fontSize: 16)),
+          Text(label, style: const TextStyle(fontSize: 16)),
           const SizedBox(height: 6),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildBar(entry.lastWeekValue, maxValue, Colors.orange),
+              _buildBar(lastWeekValue, maxValue, Colors.orange, maxWidth),
               const SizedBox(height: 3),
-              _buildBar(entry.thisWeekValue, maxValue, Colors.deepPurple),
+              _buildBar(thisWeekValue, maxValue, Colors.deepPurple, maxWidth),
             ],
           ),
           const SizedBox(height: 6),
           Row(
             children: [
-              Text('지난주: ${entry.displayLastWeekValue}'),
+              Text('지난주: ${lastWeekValue.toStringAsFixed(1)}'),
               const SizedBox(width: 16),
-              Text('이번주: ${entry.displayThisWeekValue}'),
+              Text('이번주: ${thisWeekValue.toStringAsFixed(1)}'),
             ],
           ),
         ],
@@ -105,9 +120,10 @@ class WeeklyAnalysisChart extends StatelessWidget {
     );
   }
 
-  Widget _buildBar(double value, double max, Color color) {
+  Widget _buildBar(
+      double value, double max, Color color, double totalMaxWidth) {
     final ratio = (value / max).clamp(0.0, 1.0);
-    final width = (ratio * maxWidth).toDouble();
+    final width = (ratio * totalMaxWidth).toDouble();
     return Container(
       height: 13,
       width: width,

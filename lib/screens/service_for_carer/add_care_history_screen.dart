@@ -7,6 +7,7 @@ import 'package:frontend/services/target_service.dart';
 import 'package:frontend/services/target_history_service.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
 import 'package:frontend/widgets/custom_layout.dart';
+import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
 
 class AddCareHistoryScreen extends StatefulWidget {
   final int memberId; // 로그인 후 전달받은 관리자(상담자) ID
@@ -129,6 +130,18 @@ class _AddCareHistoryScreenState extends State<AddCareHistoryScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => CarerHomeScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+    if (idx == 1) {
+      // 분석 화면으로 돌아간다
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerAnalysisScreen(
             memberId: widget.memberId,
             counselorName: widget.counselorName,
           ),

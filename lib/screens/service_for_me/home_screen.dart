@@ -5,7 +5,8 @@ import 'package:frontend/models/dashboard_data.dart';
 import 'package:frontend/services/profile_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/user_summary_card.dart';
-import 'package:frontend/screens/service_for_me/care_history_screen.dart'; // ← 돌봄 이력 화면 import
+import 'package:frontend/screens/service_for_me/care_history_screen.dart';
+import 'package:frontend/screens/service_for_me/analysis_screen.dart';
 
 class MyHomeScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -54,7 +55,14 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       setState(() => _currentIndex = 0);
       return;
     }
-
+    if (idx == 1) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => WeeklyReportScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
     // idx == 2: pan_tool_alt 아이콘 클릭 → Care History 화면으로 이동
     if (idx == 2) {
       Navigator.of(context).pushReplacement(
@@ -64,8 +72,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       );
       return;
     }
-
-    // 그 외 인덱스(1, 3)는 여기서 특별 처리하지 않으므로, 인덱스만 변경
+    // 그 외 인덱스(3)는 여기서 특별 처리하지 않으므로, 인덱스만 변경
     setState(() => _currentIndex = idx);
   }
 

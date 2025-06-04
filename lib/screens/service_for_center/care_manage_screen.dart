@@ -7,6 +7,7 @@ import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/target_history_card.dart';
 import 'package:frontend/screens/service_for_center/home_screen.dart';
 import 'package:frontend/screens/service_for_center/add_care_history_screen.dart';
+import 'package:frontend/screens/service_for_center/analysis_screen.dart';
 
 class CareManageScreen extends StatefulWidget {
   final int memberId; // 로그인된 돌봄 담당자 ID
@@ -62,6 +63,18 @@ class _CareManageScreenState extends State<CareManageScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => CenterHomeScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+    if (idx == 1) {
+      // 분석 화면으로 돌아간다
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterAnalysisScreen(
             memberId: widget.memberId,
             counselorName: widget.counselorName,
           ),
