@@ -139,9 +139,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
       return;
     }
     // 그 외 탭(idx = 3 등) → 단순 인덱스만 변경
-    setState(() {
-      _currentIndex = idx;
-    });
+    setState(() => _currentIndex = idx);
   }
 
   @override

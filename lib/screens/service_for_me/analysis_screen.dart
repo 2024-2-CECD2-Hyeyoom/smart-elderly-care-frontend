@@ -19,7 +19,7 @@ class WeeklyReportScreen extends StatefulWidget {
 
 class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   int _currentIndex = 1; // BottomNavigationBar에서 현재 선택된 인덱스
-  int _selectedTabIndex = 0; // 탭(0=주간분석, 1=수면분석, 2=외출분석)
+  final int _selectedTabIndex = 0; // 탭(0=주간분석, 1=수면분석, 2=외출분석)
   DateTime _selectedDate = DateTime.now(); // 현재 선택된 날짜(초기값 오늘)
 
   Future<void> _pickDate() async {
@@ -69,9 +69,8 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       );
       return;
     }
-    setState(() {
-      _currentIndex = idx;
-    });
+    setState(() => _currentIndex = idx);
+  }
   }
 
   final List<String> _tabs = ['주간 분석 레포트', '수면 분석', '외출 분석'];
