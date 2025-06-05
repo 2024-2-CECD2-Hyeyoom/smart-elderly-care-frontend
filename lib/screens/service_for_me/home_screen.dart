@@ -7,6 +7,7 @@ import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/user_summary_card.dart';
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
 import 'package:frontend/screens/service_for_me/analysis_screen.dart';
+import 'package:frontend/screens/service_for_me/my_page.dart';
 
 class MyHomeScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -68,6 +69,15 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => MyCareHistoryScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
+    if (idx == 3) {
+      // mypage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyPageScreen(userId: widget.userId),
         ),
       );
       return;

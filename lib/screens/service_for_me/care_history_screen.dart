@@ -7,6 +7,7 @@ import 'package:frontend/models/care_history.dart';
 import 'package:frontend/services/care_history_service.dart';
 import 'package:frontend/screens/service_for_me/home_screen.dart'; // HomeScreen import
 import 'package:frontend/screens/service_for_me/analysis_screen.dart';
+import 'package:frontend/screens/service_for_me/my_page.dart';
 
 class MyCareHistoryScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -71,6 +72,15 @@ class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
     if (idx == 2) {
       // 이미 이 화면이므로, 단순 인덱스만 바꾸기
       setState(() => _currentIndex = 2);
+      return;
+    }
+    if (idx == 3) {
+      // mypage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyPageScreen(userId: widget.userId),
+        ),
+      );
       return;
     }
     // 그 외 인덱스는 단순히 인덱스만 바꿔 줍니다.

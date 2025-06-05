@@ -79,6 +79,11 @@ class _MyPageScreenState extends State<MyPageScreen> {
       );
       return;
     }
+    if (idx == 3) {
+      // 이미 Home 화면이므로, 단순히 인덱스만 변경
+      setState(() => _selectedIndex = 3);
+      return;
+    }
     // idx == 3: 이미 “마이페이지”이므로 단순 인덱스만 교체
     setState(() => _selectedIndex = idx);
   }

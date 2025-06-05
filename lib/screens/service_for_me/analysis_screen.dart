@@ -7,6 +7,7 @@ import 'package:frontend/widgets/sleep_analysis_graph.dart';
 import 'package:frontend/widgets/go_out_analysis_graph.dart';
 import 'package:frontend/screens/service_for_me/home_screen.dart'; // HomeScreen import
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
+import 'package:frontend/screens/service_for_me/my_page.dart';
 
 class WeeklyReportScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -19,7 +20,7 @@ class WeeklyReportScreen extends StatefulWidget {
 
 class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
   int _currentIndex = 1; // BottomNavigationBar에서 현재 선택된 인덱스
-  final int _selectedTabIndex = 0; // 탭(0=주간분석, 1=수면분석, 2=외출분석)
+  int _selectedTabIndex = 0; // 탭(0=주간분석, 1=수면분석, 2=외출분석)
   DateTime _selectedDate = DateTime.now(); // 현재 선택된 날짜(초기값 오늘)
 
   Future<void> _pickDate() async {
@@ -69,8 +70,18 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       );
       return;
     }
-    setState(() => _currentIndex = idx);
-  }
+    if (idx == 3) {
+      // mypage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyPageScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
+    setState(() {
+      _currentIndex = idx;
+    });
   }
 
   final List<String> _tabs = ['주간 분석 레포트', '수면 분석', '외출 분석'];
