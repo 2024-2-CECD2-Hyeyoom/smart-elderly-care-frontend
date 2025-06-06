@@ -9,6 +9,8 @@ import 'package:frontend/widgets/filter_button.dart';
 import 'package:frontend/widgets/target_card.dart';
 import 'package:frontend/screens/service_for_center/analysis_screen.dart';
 
+import 'my_page.dart';
+
 class CenterHomeScreen extends StatefulWidget {
   final int memberId;
   final String counselorName;
@@ -78,6 +80,18 @@ class _CenterHomeScreenState extends State<CenterHomeScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => CareManageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterMyPageScreen(
             memberId: widget.memberId,
             counselorName: widget.counselorName,
           ),
