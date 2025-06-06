@@ -25,5 +25,5 @@ class MyPageService {
     return MyPageData.fromJson(result);
   }
 
-// (추가) 예: “아이디 수정” 같은 PUT/POST 엔드포인트가 있다면 여기에 메서드를 더 정의할 수 있습니다.
+  // (추가) 예: “아이디 수정” 같은 PUT/POST 엔드포인트가 있다면 여기에 메서드를 더 정의할 수 있습니다.
 }

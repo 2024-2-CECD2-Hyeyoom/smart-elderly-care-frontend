@@ -35,7 +35,7 @@ class MyPageData {
       welfareCenterName: json['welfareCenterName'] as String,
       phone: json['phone'] as String,
       underlyingDiseases:
-      List<String>.from(json['underlyingDiseases'] as List<dynamic>),
+          List<String>.from(json['underlyingDiseases'] as List<dynamic>),
     );
   }
 }

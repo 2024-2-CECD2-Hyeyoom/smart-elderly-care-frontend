@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/staff_profile.dart';
 import 'package:frontend/services/staff_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
-import 'package:frontend/widgets/edit_id.dart';
 import 'package:frontend/widgets/user_info_box.dart';
 import 'package:frontend/screens/service_for_center/analysis_screen.dart';
 import 'package:frontend/screens/service_for_center/home_screen.dart';
@@ -120,17 +119,6 @@ class _CenterMyPageScreenState extends State<CenterMyPageScreen> {
 
                 // 1) 이름
                 UserInfoBox(text: '이름: ${profile.name}'),
-
-                // 2) (편의상) 아이디 수정 위젯 – 실제로는 staffId가 아니라
-                //    인증 서버에서 받은 “로그인 아이디”가 필요하겠지만,
-                //    예시로 staffId를 문자열로 표시해두었습니다.
-                EditIdField(
-                  initialId: profile.staffId.toString(),
-                  onSave: (newId) {
-                    // TODO: 서버에 staffId(또는 로그인 아이디)를 변경 요청하는 로직
-                    print('변경된 아이디: $newId');
-                  },
-                ),
 
                 // 3) 전화번호
                 UserInfoBox(text: '전화번호: ${profile.phone}'),

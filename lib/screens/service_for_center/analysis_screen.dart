@@ -13,6 +13,7 @@ import 'package:frontend/widgets/go_out_analysis_graph.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/screens/service_for_center/home_screen.dart';
 import 'package:frontend/screens/service_for_center/care_manage_screen.dart';
+import 'package:frontend/screens/service_for_center/my_page.dart';
 
 class CenterAnalysisScreen extends StatefulWidget {
   final int memberId;
@@ -71,7 +72,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
 
           // CareTargetName.userId에 해당하는 CareTarget을 찾아서 저장
           _selectedCareTarget = _fullTargets.firstWhere(
-                (ct) => ct.userId == _selectedTargetName!.userId,
+            (ct) => ct.userId == _selectedTargetName!.userId,
             orElse: () => _fullTargets[0],
           );
         }
@@ -138,7 +139,17 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
       );
       return;
     }
-    // 그 외 탭(idx = 3 등) → 단순 인덱스만 변경
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() => _currentIndex = idx);
   }
 
@@ -157,7 +168,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
             if (_selectedCareTarget != null) ...[
               Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: TargetCard(
                   name: _selectedCareTarget!.name,
                   address: _selectedCareTarget!.address,
@@ -192,7 +203,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
                     _selectedTargetName = val;
                     // 선택된 userId와 일치하는 풀정보(CareTarget)를 찾아서 갱신
                     _selectedCareTarget = _fullTargets.firstWhere(
-                          (ct) => ct.userId == val.userId,
+                      (ct) => ct.userId == val.userId,
                       orElse: () => _fullTargets.first,
                     );
                   });
