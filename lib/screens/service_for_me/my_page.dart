@@ -8,7 +8,6 @@ import 'package:frontend/screens/service_for_me/home_screen.dart';
 import 'package:frontend/screens/service_for_me/analysis_screen.dart';
 import 'package:frontend/services/my_page_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
-import 'package:frontend/widgets/edit_id.dart';
 import 'package:frontend/widgets/user_info_box.dart';
 
 class MyPageScreen extends StatefulWidget {
@@ -125,19 +124,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
         const Icon(Icons.account_circle, size: 100, color: Colors.grey),
         const SizedBox(height: 24),
 
-        // “EditIdField”는 API에서 받은 elderlyId를 초기값으로 합니다.
-        EditIdField(
-          initialId: data.elderlyId,
-          onSave: (newId) {
-            // TODO: ID 수정 위한 API 호출이 필요하면 이곳에 넣고,
-            //       다시 _fetchMyPage() 등을 호출하여 화면을 갱신하십시오.
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('아이디가 변경되었습니다.')),
-            );
-          },
-        ),
-
-        // 나머지 유저 정보 박스
+        // 유저 정보 박스
         UserInfoBox(text: '이름: ${data.name} ($genderText)'),
         UserInfoBox(text: '생년월일: $birthStr'),
         UserInfoBox(text: '전화번호: ${data.phone}'),

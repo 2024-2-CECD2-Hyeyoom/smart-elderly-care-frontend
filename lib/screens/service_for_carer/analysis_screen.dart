@@ -13,6 +13,7 @@ import 'package:frontend/widgets/go_out_analysis_graph.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
 import 'package:frontend/screens/service_for_carer/care_manage_screen.dart';
+import 'package:frontend/screens/service_for_carer/my_page.dart';
 
 class CarerAnalysisScreen extends StatefulWidget {
   final int memberId;
@@ -138,7 +139,17 @@ class _CarerAnalysisScreenState extends State<CarerAnalysisScreen> {
       );
       return;
     }
-    // 그 외 탭(idx = 3 등) → 단순 인덱스만 변경
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() {
       _currentIndex = idx;
     });

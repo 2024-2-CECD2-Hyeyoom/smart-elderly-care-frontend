@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/caregiver_profile.dart';
 import 'package:frontend/services/caregiver_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
-import 'package:frontend/widgets/edit_id.dart';
 import 'package:frontend/widgets/user_info_box.dart';
 import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
@@ -70,7 +69,10 @@ class _CarerMyPageScreenState extends State<CarerMyPageScreen> {
       );
       return;
     }
-    // idx == 3 : 자기 자신 탭(마이페이지)이므로 인덱스만 변경
+    if (idx == 3) {
+      setState(() => _selectedIndex = 3);
+      return;
+    }
     setState(() => _selectedIndex = idx);
   }
 
@@ -112,15 +114,6 @@ class _CarerMyPageScreenState extends State<CarerMyPageScreen> {
 
                 // 2) 이름
                 UserInfoBox(text: '이름: ${profile.name}'),
-
-                // 3) (편의상) “아이디(EditIdField)” → 실제로는 로그인 아이디일 수 있습니다.
-                EditIdField(
-                  initialId: profile.caregiverId.toString(),
-                  onSave: (newId) {
-                    // TODO: 로그인 아이디 변경 API가 필요하다면 호출
-                    print('변경된 아이디: $newId');
-                  },
-                ),
 
                 // 4) 전화번호
                 UserInfoBox(text: '전화번호: ${profile.phone}'),
