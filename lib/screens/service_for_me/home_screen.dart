@@ -128,7 +128,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       '주소': data.address,
       '담당복지센터': data.welfareCenter,
       '연락처': formatPhoneNumber(data.phoneNumber),
-      '보호자 연락처': data.guardianPhone,
+      '보호자 연락처': formatPhoneNumber(data.guardianPhone),
       '기저질환': data.underlyingConditions.join(', '),
     };
     final isDanger = data.careStatus != 0;
