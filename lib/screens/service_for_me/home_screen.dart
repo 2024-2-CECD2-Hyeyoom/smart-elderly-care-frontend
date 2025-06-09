@@ -86,6 +86,16 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
     setState(() => _currentIndex = idx);
   }
 
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLayout(
@@ -117,7 +127,7 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       '성별': data.gender == 0 ? '여' : '남',
       '주소': data.address,
       '담당복지센터': data.welfareCenter,
-      '연락처': data.phoneNumber,
+      '연락처': formatPhoneNumber(data.phoneNumber),
       '보호자 연락처': data.guardianPhone,
       '기저질환': data.underlyingConditions.join(', '),
     };

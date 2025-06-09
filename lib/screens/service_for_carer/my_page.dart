@@ -76,6 +76,16 @@ class _CarerMyPageScreenState extends State<CarerMyPageScreen> {
     setState(() => _selectedIndex = idx);
   }
 
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone; // 형식에 맞지 않으면 그대로 반환
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLayout(
@@ -116,7 +126,7 @@ class _CarerMyPageScreenState extends State<CarerMyPageScreen> {
                 UserInfoBox(text: '이름: ${profile.name}'),
 
                 // 4) 전화번호
-                UserInfoBox(text: '전화번호: ${profile.phone}'),
+                UserInfoBox(text: '전화번호: ${formatPhoneNumber(profile.phone)}'),
 
                 // 5) 돌봄 대상자(노인) 리스트 (예시로 단순 나열)
                 const SizedBox(height: 16),
@@ -129,7 +139,7 @@ class _CarerMyPageScreenState extends State<CarerMyPageScreen> {
                   profile.elderlyNames.length,
                   (i) => UserInfoBox(
                     text:
-                        '${profile.elderlyNames[i]} (전화: ${profile.elderlyPhones[i]})',
+                        '${profile.elderlyNames[i]} (전화: ${formatPhoneNumber(profile.elderlyPhones[i])})',
                   ),
                 ),
 

@@ -80,6 +80,16 @@ class _CenterMyPageScreenState extends State<CenterMyPageScreen> {
     setState(() => _selectedIndex = idx);
   }
 
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLayout(
@@ -121,7 +131,7 @@ class _CenterMyPageScreenState extends State<CenterMyPageScreen> {
                 UserInfoBox(text: '이름: ${profile.name}'),
 
                 // 3) 전화번호
-                UserInfoBox(text: '전화번호: ${profile.phone}'),
+                UserInfoBox(text: '전화번호: ${formatPhoneNumber(profile.phone)}'),
 
                 // 4) 소속기관
                 UserInfoBox(text: '소속기관: ${profile.welfareCenterName}'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/screens/login_screens/login_screen.dart';
 import 'package:frontend/widgets/custom_pop_up.dart';
@@ -10,6 +11,33 @@ import 'package:frontend/models/caregiver_signup_request.dart';
 import 'package:frontend/models/welfare_center.dart';
 import 'package:frontend/services/signup_service.dart';
 import 'package:frontend/services/welfare_center_service.dart';
+
+class PhoneNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    if (digits.length > 11) {
+      digits = digits.substring(0, 11);
+    }
+
+    String formatted = digits;
+    if (digits.length >= 4 && digits.length <= 7) {
+      formatted = '${digits.substring(0, 3)}-${digits.substring(3)}';
+    } else if (digits.length >= 8) {
+      formatted =
+      '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 
 class SignupScreen extends StatefulWidget {
   final LoginType loginType;
@@ -67,6 +95,12 @@ class _SignUpScreenState extends State<SignupScreen> {
       }
     }
     return false;
+  }
+
+  bool isValidPassword(String password) {
+    // 최소 8자, 대소문자, 숫자, 특수문자 포함 여부 검사
+    final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$');
+    return regex.hasMatch(password);
   }
 
   Future<void> _onSelectCenter() async {
@@ -202,11 +236,17 @@ class _SignUpScreenState extends State<SignupScreen> {
     }
 
     final name = nameController.text.trim();
-    final phone = contactController.text.trim();
+    final phone = contactController.text.replaceAll('-', '').trim();
     final genderVal = gender == '남' ? 1 : 0;
     final address = addressController.text.trim();
     final welfareCenterName = selectedInstitutionName;
     final password = passwordController.text.trim();
+    if (!isValidPassword(password)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('비밀번호는 8자 이상이며, 영문 대소문자, 숫자, 특수문자를 모두 포함해야 합니다.')),
+      );
+      return;
+    }
 
     late UserSignupResponse resp;
     try {
@@ -473,7 +513,16 @@ class _SignUpScreenState extends State<SignupScreen> {
                   ),
                 ],
                 const SizedBox(height: 12),
-                _buildLabeledInput('전화번호', contactController),
+                TextField(
+                  controller: contactController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [PhoneNumberFormatter()],
+                  decoration: const InputDecoration(
+                    labelText: '전화번호',
+                    hintText: '01012345678',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: passwordController,

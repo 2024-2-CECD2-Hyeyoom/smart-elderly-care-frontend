@@ -116,6 +116,16 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
     setState(() => _currentIndex = idx);
   }
 
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLayout(
@@ -202,7 +212,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
                 name: t.name,
                 address: t.address,
                 center: t.welfareCenterName,
-                contact: t.phoneNumber,
+                contact: formatPhoneNumber(t.phoneNumber),
                 isDanger: t.isDanger,
                 isAbsent: false,
               );
