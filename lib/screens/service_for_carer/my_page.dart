@@ -1,22 +1,89 @@
+// lib/screens/service_for_carer/my_page.dart
+
 import 'package:flutter/material.dart';
+import 'package:frontend/models/caregiver_profile.dart';
+import 'package:frontend/services/caregiver_service.dart';
 import 'package:frontend/widgets/custom_layout.dart';
-import 'package:frontend/widgets/edit_id.dart';
 import 'package:frontend/widgets/user_info_box.dart';
+import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
+import 'package:frontend/screens/service_for_carer/home_screen.dart';
+import 'package:frontend/screens/service_for_carer/care_manage_screen.dart';
 
 class CarerMyPageScreen extends StatefulWidget {
-  const CarerMyPageScreen({super.key});
+  final int memberId; // 로그인 시 전달된 caregiverId
+  final String counselorName; // (뒤로 돌아갈 때 필요하면)
+
+  const CarerMyPageScreen({
+    super.key,
+    required this.memberId,
+    required this.counselorName,
+  });
 
   @override
-  State<CarerMyPageScreen> createState() => _MyPageScreenState();
+  State<CarerMyPageScreen> createState() => _CarerMyPageScreenState();
 }
 
-class _MyPageScreenState extends State<CarerMyPageScreen> {
-  int _selectedIndex = 3;
+class _CarerMyPageScreenState extends State<CarerMyPageScreen> {
+  late Future<CaregiverProfile> _futureProfile;
+  int _selectedIndex = 3; // 마이페이지 탭 인덱스
 
-  void _onNavTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    // 화면이 열리면 백엔드 호출
+    _futureProfile = CaregiverService.instance.fetchMyPage(widget.memberId);
+  }
+
+  void _onNavTapped(int idx) {
+    // 0: 홈, 1: 분석, 2: 돌봄 관리, 3: 마이페이지(현재)
+    if (idx == 0) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerHomeScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+    if (idx == 1) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerAnalysisScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+    if (idx == 2) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CareManageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+    if (idx == 3) {
+      setState(() => _selectedIndex = 3);
+      return;
+    }
+    setState(() => _selectedIndex = idx);
+  }
+
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone; // 형식에 맞지 않으면 그대로 반환
   }
 
   @override
@@ -26,53 +93,78 @@ class _MyPageScreenState extends State<CarerMyPageScreen> {
       showLogoutButton: true,
       currentIndex: _selectedIndex,
       onTap: _onNavTapped,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(Icons.account_circle, size: 100, color: Colors.grey),
-            const SizedBox(height: 24),
-            const UserInfoBox(text: '이름: 남보호(여)'),
-            EditIdField(
-              initialId: '1234',
-              onSave: (newId) {
-                // 저장 후 처리 로직
-                print('변경된 아이디: $newId');
-              },
-            ),
-            const UserInfoBox(text: '생년월일: 1900년 00월 00일'),
-            const UserInfoBox(text: '전화번호: 010-0000-0000'),
-            const SizedBox(height: 20),
-            TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                foregroundColor: const Color.fromARGB(255, 48, 81, 120),
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                minimumSize: const Size(80, 40),
+      body: FutureBuilder<CaregiverProfile>(
+        future: _futureProfile,
+        builder: (context, snapshot) {
+          // 로딩 중
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // 에러
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                '데이터를 불러올 수 없습니다.\n${snapshot.error}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
               ),
-              child: const Text(
-                '계정 탈퇴',
-                style: TextStyle(color: Color.fromARGB(255, 48, 81, 120)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+            );
+          }
 
-  Widget _buildInfoBox(String text) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.grey.shade100,
+          // 정상적으로 데이터가 로드된 경우
+          final profile = snapshot.data!;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // 1) 프로필 아이콘
+                const Icon(Icons.account_circle, size: 100, color: Colors.grey),
+                const SizedBox(height: 24),
+
+                // 2) 이름
+                UserInfoBox(text: '이름: ${profile.name}'),
+
+                // 4) 전화번호
+                UserInfoBox(text: '전화번호: ${formatPhoneNumber(profile.phone)}'),
+
+                // 5) 돌봄 대상자(노인) 리스트 (예시로 단순 나열)
+                const SizedBox(height: 16),
+                const Text(
+                  '돌봄 대상자 목록',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                ...List.generate(
+                  profile.elderlyNames.length,
+                  (i) => UserInfoBox(
+                    text:
+                        '${profile.elderlyNames[i]} (전화: ${formatPhoneNumber(profile.elderlyPhones[i])})',
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 6) 계정 탈퇴 버튼
+                TextButton(
+                  onPressed: () {
+                    // TODO: 계정 탈퇴 로직
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color.fromARGB(255, 48, 81, 120),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: const Size(80, 40),
+                  ),
+                  child: const Text(
+                    '계정 탈퇴',
+                    style: TextStyle(color: Color.fromARGB(255, 48, 81, 120)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
-      child: Text(text, style: const TextStyle(fontSize: 16)),
     );
   }
 }

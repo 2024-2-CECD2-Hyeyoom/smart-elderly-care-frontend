@@ -8,6 +8,7 @@ import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/filter_button.dart';
 import 'package:frontend/widgets/target_card.dart';
 import 'package:frontend/screens/service_for_center/analysis_screen.dart';
+import 'package:frontend/screens/service_for_center/my_page.dart';
 
 class CenterHomeScreen extends StatefulWidget {
   final int memberId;
@@ -85,9 +86,28 @@ class _CenterHomeScreenState extends State<CenterHomeScreen> {
       );
       return;
     }
-
-    // 나머지(1, 3) 클릭 시에는 그냥 인덱스만 바꿉니다.
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() => _currentIndex = idx);
+  }
+
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
   }
 
   @override
@@ -176,7 +196,7 @@ class _CenterHomeScreenState extends State<CenterHomeScreen> {
                 name: t.name,
                 address: t.address,
                 center: t.welfareCenterName,
-                contact: t.phoneNumber,
+                contact: formatPhoneNumber(t.phoneNumber),
                 isDanger: t.isDanger,
                 isAbsent: false,
               );

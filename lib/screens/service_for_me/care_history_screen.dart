@@ -7,6 +7,7 @@ import 'package:frontend/models/care_history.dart';
 import 'package:frontend/services/care_history_service.dart';
 import 'package:frontend/screens/service_for_me/home_screen.dart'; // HomeScreen import
 import 'package:frontend/screens/service_for_me/analysis_screen.dart';
+import 'package:frontend/screens/service_for_me/my_page.dart';
 
 class MyCareHistoryScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -34,7 +35,7 @@ class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
   Future<void> _fetchHistory() async {
     try {
       final List<CareHistory> list =
-          await CareHistoryService.instance.fetchHistory(widget.userId);
+      await CareHistoryService.instance.fetchHistory(widget.userId);
       if (!mounted) return;
       setState(() {
         _allHistory = list;
@@ -73,6 +74,15 @@ class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
       setState(() => _currentIndex = 2);
       return;
     }
+    if (idx == 3) {
+      // mypage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyPageScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
     // 그 외 인덱스는 단순히 인덱스만 바꿔 줍니다.
     setState(() => _currentIndex = idx);
   }
@@ -108,7 +118,7 @@ class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
               .any((v) => v.toLowerCase().contains(_searchQuery.toLowerCase()));
       final matchesRange = _selectedRange == null ||
           (h.visitDate.isAfter(
-                  _selectedRange!.start.subtract(const Duration(days: 1))) &&
+              _selectedRange!.start.subtract(const Duration(days: 1))) &&
               h.visitDate
                   .isBefore(_selectedRange!.end.add(const Duration(days: 1))));
       return matchesText && matchesRange;
@@ -119,7 +129,7 @@ class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
       rangeText = '기간을 선택하세요.';
     } else {
       rangeText =
-          '${_selectedRange!.start.year}.${_selectedRange!.start.month.toString().padLeft(2, '0')}.${_selectedRange!.start.day.toString().padLeft(2, '0')} - '
+      '${_selectedRange!.start.year}.${_selectedRange!.start.month.toString().padLeft(2, '0')}.${_selectedRange!.start.day.toString().padLeft(2, '0')} - '
           '${_selectedRange!.end.year}.${_selectedRange!.end.month.toString().padLeft(2, '0')}.${_selectedRange!.end.day.toString().padLeft(2, '0')}';
     }
 
@@ -138,9 +148,9 @@ class _CareHistoryScreenState extends State<MyCareHistoryScreen> {
                     suffixIcon: _searchQuery.isEmpty
                         ? null
                         : IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () => setState(() => _searchQuery = ''),
-                          ),
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(() => _searchQuery = ''),
+                    ),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),

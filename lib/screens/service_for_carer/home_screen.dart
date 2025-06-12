@@ -8,6 +8,9 @@ import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/filter_button.dart';
 import 'package:frontend/widgets/target_card.dart';
 import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
+import 'package:frontend/screens/service_for_carer/my_page.dart';
+
+import 'my_page.dart';
 
 class CarerHomeScreen extends StatefulWidget {
   final int memberId;
@@ -85,9 +88,42 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
       );
       return;
     }
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
 
     // 나머지(1, 3) 클릭 시에는 그냥 인덱스만 바꿉니다.
     setState(() => _currentIndex = idx);
+  }
+
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
   }
 
   @override
@@ -134,9 +170,9 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
               suffixIcon: _searchQuery.isEmpty
                   ? null
                   : IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => setState(() => _searchQuery = ''),
-                    ),
+                icon: const Icon(Icons.clear),
+                onPressed: () => setState(() => _searchQuery = ''),
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -176,7 +212,7 @@ class _CarerHomeScreenState extends State<CarerHomeScreen> {
                 name: t.name,
                 address: t.address,
                 center: t.welfareCenterName,
-                contact: t.phoneNumber,
+                contact: formatPhoneNumber(t.phoneNumber),
                 isDanger: t.isDanger,
                 isAbsent: false,
               );

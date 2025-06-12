@@ -9,6 +9,7 @@ import 'package:frontend/services/target_history_service.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/screens/service_for_center/analysis_screen.dart';
+import 'package:frontend/screens/service_for_center/my_page.dart';
 
 class EditCareHistoryScreen extends StatefulWidget {
   final int memberId; // 로그인된 돌봄 담당자(ID)
@@ -174,6 +175,17 @@ class _EditCareHistoryScreenState extends State<EditCareHistoryScreen> {
       setState(() => _currentIndex = 2);
       return;
     }
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
     setState(() => _currentIndex = idx);
   }
 
@@ -325,12 +337,12 @@ class _EditCareHistoryScreenState extends State<EditCareHistoryScreen> {
                 ),
                 child: _saving
                     ? const CircularProgressIndicator(
-                        color: Colors.white,
-                      )
+                  color: Colors.white,
+                )
                     : const Text(
-                        '저장',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
+                  '저장',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
           ),

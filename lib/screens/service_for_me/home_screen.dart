@@ -7,6 +7,7 @@ import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/user_summary_card.dart';
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
 import 'package:frontend/screens/service_for_me/analysis_screen.dart';
+import 'package:frontend/screens/service_for_me/my_page.dart';
 
 class MyHomeScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -72,8 +73,27 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       );
       return;
     }
+    if (idx == 3) {
+      // mypage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyPageScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
     // 그 외 인덱스(3)는 여기서 특별 처리하지 않으므로, 인덱스만 변경
     setState(() => _currentIndex = idx);
+  }
+
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
   }
 
   @override
@@ -107,8 +127,8 @@ class _MyHomeScreenState extends State<MyHomeScreen> {
       '성별': data.gender == 0 ? '여' : '남',
       '주소': data.address,
       '담당복지센터': data.welfareCenter,
-      '연락처': data.phoneNumber,
-      '보호자 연락처': data.guardianPhone,
+      '연락처': formatPhoneNumber(data.phoneNumber),
+      '보호자 연락처': formatPhoneNumber(data.guardianPhone),
       '기저질환': data.underlyingConditions.join(', '),
     };
     final isDanger = data.careStatus != 0;

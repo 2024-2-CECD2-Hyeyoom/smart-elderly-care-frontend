@@ -8,6 +8,7 @@ import 'package:frontend/widgets/target_history_card.dart';
 import 'package:frontend/screens/service_for_carer/home_screen.dart';
 import 'package:frontend/screens/service_for_carer/add_care_history_screen.dart';
 import 'package:frontend/screens/service_for_carer/analysis_screen.dart';
+import 'package:frontend/screens/service_for_carer/my_page.dart';
 
 class CareManageScreen extends StatefulWidget {
   final int memberId; // 로그인된 돌봄 담당자 ID
@@ -85,6 +86,17 @@ class _CareManageScreenState extends State<CareManageScreen> {
     if (idx == 2) {
       // 이미 돌봄 관리 화면이므로 인덱스만 변경
       setState(() => _currentIndex = 2);
+      return;
+    }
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CarerMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
       return;
     }
     setState(() => _currentIndex = idx);

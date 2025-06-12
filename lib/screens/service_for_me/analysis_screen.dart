@@ -7,6 +7,7 @@ import 'package:frontend/widgets/sleep_analysis_graph.dart';
 import 'package:frontend/widgets/go_out_analysis_graph.dart';
 import 'package:frontend/screens/service_for_me/home_screen.dart'; // HomeScreen import
 import 'package:frontend/screens/service_for_me/care_history_screen.dart';
+import 'package:frontend/screens/service_for_me/my_page.dart';
 
 class WeeklyReportScreen extends StatefulWidget {
   final int userId; // 로그인 시 전달받은 userId
@@ -69,6 +70,15 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
       );
       return;
     }
+    if (idx == 3) {
+      // mypage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => MyPageScreen(userId: widget.userId),
+        ),
+      );
+      return;
+    }
     setState(() {
       _currentIndex = idx;
     });
@@ -99,8 +109,8 @@ class _WeeklyReportScreenState extends State<WeeklyReportScreen> {
                     const SizedBox(width: 8),
                     Text(
                       '선택된 날짜: '
-                      '${_selectedDate.year}년 ${_selectedDate.month.toString().padLeft(2, '0')}월 '
-                      '${_selectedDate.day.toString().padLeft(2, '0')}일',
+                          '${_selectedDate.year}년 ${_selectedDate.month.toString().padLeft(2, '0')}월 '
+                          '${_selectedDate.day.toString().padLeft(2, '0')}일',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

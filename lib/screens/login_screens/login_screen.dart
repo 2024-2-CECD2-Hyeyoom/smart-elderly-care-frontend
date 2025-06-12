@@ -3,17 +3,43 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screens/find_password_screen.dart';
 import 'package:frontend/screens/login_screens/sign_up_screen.dart';
-import 'package:frontend/widgets/custom_pop_up.dart';
 import 'package:frontend/widgets/custom_snackbar.dart';
 import 'package:frontend/services/auth_service.dart';
 import 'package:frontend/services/secure_storage_service.dart';
 import 'package:frontend/models/login_request.dart';
-import 'package:frontend/models/login_response.dart';
 
 // 홈스크린을 별칭(import-as)으로 불러옵니다.
 import 'package:frontend/screens/service_for_me/home_screen.dart' as me;
 import 'package:frontend/screens/service_for_carer/home_screen.dart' as carer;
 import 'package:frontend/screens/service_for_center/home_screen.dart' as center;
+import 'package:flutter/services.dart';
+
+class PhoneNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    if (digits.length > 11) {
+      digits = digits.substring(0, 11);
+    }
+
+    String formatted = digits;
+    if (digits.length >= 4 && digits.length <= 7) {
+      formatted = '${digits.substring(0, 3)}-${digits.substring(3)}';
+    } else if (digits.length >= 8) {
+      formatted =
+      '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 
 enum LoginType { user, admin }
 
@@ -36,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final ctx = context;
     setState(() => _isLoading = true);
 
-    final phone = _idController.text.trim();
+    final phone = _idController.text.replaceAll('-', '').trim();
     final password = _pwController.text;
     if (phone.isEmpty || password.isEmpty) {
       showMessageBanner(ctx, '아이디와 비밀번호를 모두 입력해주세요.');
@@ -124,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
                 const Text('로그인',
                     style:
-                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 const Text('아이디, 비밀번호를 입력해주세요',
                     style: TextStyle(color: Colors.grey)),
@@ -133,9 +159,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 // 아이디 입력
                 TextField(
                   controller: _idController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [PhoneNumberFormatter()],
                   decoration: const InputDecoration(
-                    labelText: '아이디:',
-                    hintText: '입력해주세요',
+                    labelText: '아이디(전화번호):',
+                    hintText: '01012345678',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -212,8 +240,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text('로그인',
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
+                        style:
+                        TextStyle(fontSize: 18, color: Colors.white)),
                   ),
                 ),
               ],

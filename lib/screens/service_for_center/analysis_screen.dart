@@ -2,14 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/models/care_target_name.dart';
+import 'package:frontend/models/care_target.dart';
 import 'package:frontend/services/target_service.dart';
+import 'package:frontend/services/care_service.dart';
+import 'package:frontend/widgets/target_card.dart';
 import 'package:frontend/widgets/custom_layout.dart';
 import 'package:frontend/widgets/weekly_analysis_graph.dart';
 import 'package:frontend/widgets/sleep_analysis_graph.dart';
 import 'package:frontend/widgets/go_out_analysis_graph.dart';
 import 'package:intl/intl.dart';
 import 'package:frontend/screens/service_for_center/home_screen.dart';
-import 'package:frontend/screens/service_for_center/care_manage_screen.dart'; // ← 돌봄 관리 화면 import
+import 'package:frontend/screens/service_for_center/care_manage_screen.dart';
+import 'package:frontend/screens/service_for_center/my_page.dart';
 
 class CenterAnalysisScreen extends StatefulWidget {
   final int memberId;
@@ -27,9 +31,18 @@ class CenterAnalysisScreen extends StatefulWidget {
 
 class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
   final TargetService _targetService = TargetService.instance;
+  final CareService _careService = CareService.instance;
 
+  // 1) 드롭다운에 쓰일 간단한 이름 리스트
   List<CareTargetName> _targets = [];
-  CareTargetName? _selectedTarget;
+  // 2) 선택된 CareTargetName
+  CareTargetName? _selectedTargetName;
+
+  // 3) 위에 카드로 보여줄 풀 정보 리스트
+  List<CareTarget> _fullTargets = [];
+  // 4) 선택된 대상자(CareTargetName.userId와 매칭되는 CareTarget)를 구할 변수
+  CareTarget? _selectedCareTarget;
+
   DateTime _selectedDate = DateTime.now();
   int _selectedTabIndex = 0;
   int _currentIndex = 1; // “bar_chart 아이콘” 선택 시 이 화면
@@ -37,21 +50,36 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchTargetNames();
+    _fetchAllTargets();
   }
 
-  Future<void> _fetchTargetNames() async {
+  /// 대상자 이름 목록과, 대상자 풀정보(CareTarget)를 동시에 가져오기
+  Future<void> _fetchAllTargets() async {
     try {
+      // 1) 이름 목록
       final names = await _targetService.fetchTargetNames(widget.memberId);
+      // 2) 풀정보(CareTarget)
+      final fullList = await _careService.fetchTargets(widget.memberId);
+
       if (!mounted) return;
       setState(() {
         _targets = names;
+        _fullTargets = fullList;
+
+        // “첫 번째”가 있으면 자동 선택
         if (_targets.isNotEmpty) {
-          _selectedTarget = _targets.first;
+          _selectedTargetName = _targets.first;
+
+          // CareTargetName.userId에 해당하는 CareTarget을 찾아서 저장
+          _selectedCareTarget = _fullTargets.firstWhere(
+            (ct) => ct.userId == _selectedTargetName!.userId,
+            orElse: () => _fullTargets[0],
+          );
         }
       });
     } catch (e) {
-      // 에러 처리
+      // 여기서 간단히 Print 혹은 SnackBar 처리
+      debugPrint('대상자 조회 중 오류: $e');
     }
   }
 
@@ -83,7 +111,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
 
   void _onTapNavBar(int idx) {
     if (idx == 0) {
-      // “🏠” → 담당자 홈(목록) 화면으로 돌아간다
+      // “🏠” → 관리자 홈(대상자 목록)으로 돌아가기
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => CenterHomeScreen(
@@ -95,11 +123,12 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
       return;
     }
     if (idx == 1) {
-      // 이미 분석 관리 화면이므로 인덱스만 변경
+      // 이미 “분석 레포트” 화면이므로 인덱스만 변경
       setState(() => _currentIndex = 1);
       return;
     }
     if (idx == 2) {
+      // “🤚” → 돌봄 관리 화면으로
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => CareManageScreen(
@@ -110,9 +139,28 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
       );
       return;
     }
-    setState(() {
-      _currentIndex = idx;
-    });
+    if (idx == 3) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CenterMyPageScreen(
+            memberId: widget.memberId,
+            counselorName: widget.counselorName,
+          ),
+        ),
+      );
+      return;
+    }
+    setState(() => _currentIndex = idx);
+  }
+
+  String formatPhoneNumber(String phone) {
+    final digits = phone.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 11) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 7)}-${digits.substring(7)}';
+    } else if (digits.length == 10) {
+      return '${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}';
+    }
+    return phone;
   }
 
   @override
@@ -125,9 +173,27 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // ── “대상자 선택” 드롭다운 ──
+            // ───────────────────────────────────────────
+            // 1) “대상자 카드” (선택된 노인 정보가 있으면 보여줌)
+            if (_selectedCareTarget != null) ...[
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: TargetCard(
+                  name: _selectedCareTarget!.name,
+                  address: _selectedCareTarget!.address,
+                  center: _selectedCareTarget!.welfareCenterName,
+                  contact: formatPhoneNumber(_selectedCareTarget!.phoneNumber),
+                  isDanger: _selectedCareTarget!.isDanger,
+                  isAbsent: false,
+                ),
+              ),
+            ],
+
+            // ───────────────────────────────────────────
+            // 2) “분석 대상자 선택” 드롭다운
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: DropdownButtonFormField<CareTargetName>(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
@@ -142,17 +208,24 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
                   );
                 }).toList(),
                 onChanged: (val) {
+                  if (val == null) return;
                   setState(() {
-                    _selectedTarget = val;
+                    _selectedTargetName = val;
+                    // 선택된 userId와 일치하는 풀정보(CareTarget)를 찾아서 갱신
+                    _selectedCareTarget = _fullTargets.firstWhere(
+                      (ct) => ct.userId == val.userId,
+                      orElse: () => _fullTargets.first,
+                    );
                   });
                 },
-                value: _selectedTarget,
+                value: _selectedTargetName,
               ),
             ),
 
-            // ── “날짜 선택” 영역 ──
+            // ───────────────────────────────────────────
+            // 3) “날짜 선택” 영역
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: InkWell(
                 onTap: _pickDate,
                 child: Row(
@@ -170,7 +243,8 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── 탭 선택 ──
+            // ───────────────────────────────────────────
+            // 4) 탭 선택 (주간 / 수면 / 외출)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -181,9 +255,13 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
             ),
             const SizedBox(height: 16),
 
-            // ── 탭별 콘텐츠 ──
-            if (_selectedTarget == null)
-              const Text('대상자를 먼저 선택해주세요.')
+            // ───────────────────────────────────────────
+            // 5) 탭별 콘텐츠
+            if (_selectedCareTarget == null)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Text('대상자를 먼저 선택해주세요.'),
+              )
             else
               _buildSelectedContent(),
           ],
@@ -192,6 +270,7 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
     );
   }
 
+  /// 탭 버튼 (밑줄 스타일) 위젯
   Widget _buildTabButton(String title, int index) {
     final isSelected = _selectedTabIndex == index;
     return GestureDetector(
@@ -225,8 +304,10 @@ class _CenterAnalysisScreenState extends State<CenterAnalysisScreen> {
     );
   }
 
+  /// 선택된 대상자 ID를 넘겨서 각 차트 위젯을 반환
   Widget _buildSelectedContent() {
-    final userId = _selectedTarget!.userId;
+    final userId = _selectedTargetName!.userId;
+
     switch (_selectedTabIndex) {
       case 0:
         return WeeklyAnalysisChart(

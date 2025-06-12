@@ -1,7 +1,8 @@
+// lib/widgets/user_info_box.dart
+
 import 'package:flutter/material.dart';
 
-// 마이페이지 유저 정보칸 위젯
-
+/// 마이페이지 유저 정보 표시용 박스 위젯
 class UserInfoBox extends StatelessWidget {
   final String text;
 
